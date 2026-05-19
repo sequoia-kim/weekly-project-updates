@@ -493,11 +493,17 @@ async function saveMeeting() {
 }
 
 // ── New entry toggle ─────────────────────────────────────────
+function closeAllPanels() {
+  document.getElementById('newEntrySection').classList.add('hidden');
+  document.getElementById('entriesPanel').classList.add('hidden');
+  document.getElementById('managePanel').classList.add('hidden');
+}
+
 function toggleNewEntry() {
   const section = document.getElementById('newEntrySection');
   const isHidden = section.classList.contains('hidden');
-  section.classList.toggle('hidden', !isHidden);
-  if (isHidden) section.scrollIntoView({ behavior: 'smooth' });
+  closeAllPanels();
+  if (isHidden) { section.classList.remove('hidden'); section.scrollIntoView({ behavior: 'smooth' }); }
 }
 
 // ── Past entries ─────────────────────────────────────────────
@@ -505,8 +511,9 @@ let editingEntryId = null;
 
 function toggleEntries() {
   const panel = document.getElementById('entriesPanel');
-  if (panel.classList.contains('hidden')) { renderEntries(); panel.classList.remove('hidden'); }
-  else panel.classList.add('hidden');
+  const isHidden = panel.classList.contains('hidden');
+  closeAllPanels();
+  if (isHidden) { renderEntries(); panel.classList.remove('hidden'); }
 }
 
 function renderEntries() {
@@ -597,8 +604,9 @@ async function deleteEntry() {
 // ── Manage projects ───────────────────────────────────────────
 function toggleManage() {
   const panel = document.getElementById('managePanel');
-  if (panel.classList.contains('hidden')) { renderProjectList(); panel.classList.remove('hidden'); }
-  else panel.classList.add('hidden');
+  const isHidden = panel.classList.contains('hidden');
+  closeAllPanels();
+  if (isHidden) { renderProjectList(); panel.classList.remove('hidden'); }
 }
 
 function renderProjectList() {
