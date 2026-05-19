@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in Entry</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;font-size:15px;line-height:1.5;min-height:100vh}
+.app-header{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.app-header h1{font-size:16px;font-weight:600;flex:1}
+.mode-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;background:#ede9fe;color:#7c3aed}
+.main-container{max-width:860px;margin:0 auto;padding:28px 20px 80px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:22px 24px;margin-bottom:16px}
+.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:16px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:6px}
+.form-group select,.form-group input,.form-group textarea{width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:7px;font-size:14px;font-family:inherit;color:#1e293b;background:#fff;transition:border-color .15s}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.select-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+@media(max-width:600px){.select-row{grid-template-columns:1fr}}
+.slider-wrap{display:flex;align-items:center;gap:14px}
+.slider-wrap input[type=range]{flex:1;accent-color:#6366f1;cursor:pointer}
+.slider-val{font-size:22px;font-weight:700;color:#6366f1;min-width:54px;text-align:right}
+.flags-card{background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:22px 24px;margin-bottom:16px}
+.flags-card .card-title{color:#c2410c}
+.flags-card textarea{border-color:#fed7aa;background:#fffbf5}
+.flags-card textarea:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.status-section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:22px 24px;margin-bottom:16px}
+.status-section .card-title{color:#6366f1}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover{background:#4f46e5}
+.btn-primary:disabled{background:#a5b4fc;cursor:not-allowed}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-danger{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.btn-danger:hover{background:#fecaca}
+.btn-sm{padding:5px 12px;font-size:13px}
+.btn-full{width:100%;justify-content:center;padding:12px}
+.manage-panel{border:1px solid #e2e8f0;border-radius:10px;background:#fff;margin-bottom:16px;overflow:hidden}
+.manage-panel-header{padding:14px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
+.manage-panel-body{padding:20px}
+.project-list-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.project-list-item:last-child{border-bottom:none}
+.project-list-item span{flex:1;font-size:14px}
+.project-list-item small{color:#94a3b8;font-size:12px}
+.add-project-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0}
+@media(max-width:600px){.add-project-row{grid-template-columns:1fr}}
+.setup-card{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:22px 24px;margin-bottom:16px}
+.setup-card .card-title{color:#b45309}
+.setup-card input{border-color:#fde68a}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:#166534}
+.toast.error{background:#991b1b}
+.loading-overlay{position:fixed;inset:0;background:rgba(248,250,252,.8);display:flex;align-items:center;justify-content:center;z-index:200}
+.loading-overlay.hidden{display:none}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+.text-muted{color:#94a3b8;font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+<div id="toast" class="toast"></div>
+
+<div class="app-header">
+  <h1>Weekly Project Check-in</h1>
+  <span class="mode-badge">Entry</span>
+  <button class="btn btn-secondary btn-sm" onclick="toggleManage()">Manage Projects</button>
+  <button class="btn btn-secondary btn-sm" onclick="toggleSetup()">&#9881; Settings</button>
+</div>
+
+<div class="main-container">
+
+  <!-- Setup card -->
+  <div id="setupCard" class="setup-card hidden">
+    <div class="card-title">GitHub Settings</div>
+    <p style="font-size:13px;color:#78350f;margin-bottom:16px">Enter your GitHub details once. These are stored only in your browser.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>GitHub Username</label>
+        <input type="text" id="cfgOwner" placeholder="e.g. sequoia-kim">
+      </div>
+      <div class="form-group">
+        <label>Repository Name</label>
+        <input type="text" id="cfgRepo" placeholder="e.g. project-tracker">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Personal Access Token</label>
+      <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx">
+      <small style="color:#94a3b8;font-size:12px;margin-top:4px;display:block">Needs repo scope. Never shared — stays in your browser only.</small>
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">Save Settings</button>
+  </div>
+
+  <!-- Manage projects panel -->
+  <div id="managePanel" class="manage-panel hidden">
+    <div class="manage-panel-header">
+      Projects
+      <button class="btn btn-secondary btn-sm" onclick="toggleManage()">Done</button>
+    </div>
+    <div class="manage-panel-body">
+      <div id="projectListEl"><p class="text-muted">Loading...</p></div>
+      <div class="add-project-row">
+        <div class="form-group" style="margin:0">
+          <label>Project Name</label>
+          <input type="text" id="newProjectName" placeholder="e.g. Biodiversity Survey">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Project Lead</label>
+          <input type="text" id="newProjectLead" placeholder="e.g. Dr. Smith">
+        </div>
+        <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="addProject()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meeting details -->
+  <div class="card">
+    <div class="card-title">Meeting Details</div>
+    <div class="select-row">
+      <div class="form-group" style="margin:0">
+        <label>Project Lead</label>
+        <select id="leadSelect" onchange="filterProjects()">
+          <option value="">— Select lead —</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Project</label>
+        <select id="projectSelect">
+          <option value="">— Select project —</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Date</label>
+        <input type="date" id="meetingDate">
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div id="formSection" class="hidden">
+
+    <div class="card">
+      <div class="card-title">Check-in Questions</div>
+
+      <div class="form-group">
+        <label>1. Out of 100%, how would you rate your capacity this week?</label>
+        <div class="slider-wrap">
+          <input type="range" id="capacitySlider" min="0" max="100" step="5" value="70" oninput="document.getElementById('capacityVal').textContent=this.value+'%'">
+          <div class="slider-val" id="capacityVal">70%</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>2. Are you experiencing any challenges, roadblocks, or bottlenecks?</label>
+        <textarea id="qChallenges" placeholder="Describe any challenges..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>3. Are you experiencing any delays, or do you foresee any delays?</label>
+        <textarea id="qDelays" placeholder="Describe any delays or anticipated delays..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>4. Is there anything that you need?</label>
+        <textarea id="qNeeds" placeholder="Resources, decisions, support..."></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0">
+        <label>5. Has anything changed in the external or internal environment relevant to the project or its release date?</label>
+        <textarea id="qEnvChanges" placeholder="Any relevant changes..."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Vibe Check</div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>6. How is the project team feeling?</label>
+        <textarea id="qVibeCheck" placeholder="Team morale, energy, concerns..."></textarea>
+      </div>
+    </div>
+
+    <div class="flags-card">
+      <div class="card-title">&#9888; Important Flags</div>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="color:#c2410c">Critical issues that need immediate attention</label>
+        <textarea id="qFlags" placeholder="Flag anything that needs urgent follow-up..." style="min-height:70px"></textarea>
+      </div>
+    </div>
+
+    <div class="status-section">
+      <div class="card-title">Project Status Update</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>General Status</label>
+          <select id="statusGeneral">
+            <option>On Track</option>
+            <option>At Risk</option>
+            <option>Delayed</option>
+            <option>On Hold</option>
+            <option>Complete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Current Stage</label>
+          <input type="text" id="statusStage" placeholder="e.g. Data collection">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Stage Date</label>
+          <input type="date" id="statusStageDate">
+        </div>
+        <div class="form-group">
+          <label>Original Deadline</label>
+          <input type="date" id="statusOrigDeadline">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Projected Deadline</label>
+          <input type="date" id="statusProjDeadline">
+        </div>
+        <div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="saveBtn" onclick="saveMeeting()">Save Meeting Notes</button>
+
+  </div>
+</div>
+
+<script>
+let appData = { projects: [], meetings: [] };
+let fileSha = '';
+
+function cfg() {
+  return {
+    owner: localStorage.getItem('gh_owner') || '',
+    repo:  localStorage.getItem('gh_repo')  || '',
+    token: localStorage.getItem('gh_token') || ''
+  };
+}
+
+function isConfigured() {
+  const c = cfg();
+  return c.owner && c.repo && c.token;
+}
+
+async function init() {
+  // Set today's date
+  const t = new Date();
+  document.getElementById('meetingDate').value =
+    t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+
+  if (!isConfigured()) {
+    document.getElementById('setupCard').classList.remove('hidden');
+    return;
+  }
+  await loadData();
+  populateLeads();
+}
+
+async function loadData() {
+  showLoading(true);
+  try {
+    const c = cfg();
+    const res = await fetch(
+      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
+      { headers: { 'Authorization': `token ${c.token}`, 'Cache-Control': 'no-cache' } }
+    );
+    if (!res.ok) throw new Error('Could not read data.json (status ' + res.status + ')');
+    const json = await res.json();
+    fileSha = json.sha;
+    appData = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
+  } catch(e) {
+    showToast('Error loading data: ' + e.message, 'error');
+  }
+  showLoading(false);
+}
+
+async function saveData() {
+  const c = cfg();
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
+  const res = await fetch(
+    `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
+    {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${c.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Update check-in data', content, sha: fileSha, branch: 'main' })
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'GitHub write failed');
+  }
+  const result = await res.json();
+  fileSha = result.content.sha;
+}
+
+function saveConfig() {
+  const owner = document.getElementById('cfgOwner').value.trim();
+  const repo  = document.getElementById('cfgRepo').value.trim();
+  const token = document.getElementById('cfgToken').value.trim();
+  if (!owner || !repo || !token) { showToast('Fill in all three fields.', 'error'); return; }
+  localStorage.setItem('gh_owner', owner);
+  localStorage.setItem('gh_repo', repo);
+  localStorage.setItem('gh_token', token);
+  document.getElementById('setupCard').classList.add('hidden');
+  showToast('Settings saved.', 'success');
+  loadData().then(populateLeads);
+}
+
+function toggleSetup() {
+  const el = document.getElementById('setupCard');
+  if (!el.classList.contains('hidden')) { el.classList.add('hidden'); return; }
+  const c = cfg();
+  document.getElementById('cfgOwner').value = c.owner;
+  document.getElementById('cfgRepo').value  = c.repo;
+  document.getElementById('cfgToken').value = c.token;
+  el.classList.remove('hidden');
+}
+
+function populateLeads() {
+  const sel = document.getElementById('leadSelect');
+  const leads = [...new Set(appData.projects.map(p => p.lead))].sort();
+  sel.innerHTML = '<option value="">— Select lead —</option>';
+  leads.forEach(l => {
+    const o = document.createElement('option');
+    o.value = o.textContent = l;
+    sel.appendChild(o);
+  });
+}
+
+function filterProjects() {
+  const lead = document.getElementById('leadSelect').value;
+  const sel = document.getElementById('projectSelect');
+  sel.innerHTML = '<option value="">— Select project —</option>';
+  document.getElementById('formSection').classList.add('hidden');
+  if (!lead) return;
+  appData.projects.filter(p => p.lead === lead).forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id;
+    o.textContent = p.name;
+    sel.appendChild(o);
+  });
+  sel.onchange = function() {
+    if (!sel.value) { document.getElementById('formSection').classList.add('hidden'); return; }
+    const p = appData.projects.find(x => x.id === sel.value);
+    if (p) {
+      document.getElementById('statusGeneral').value    = p.generalStatus    || 'On Track';
+      document.getElementById('statusStage').value      = p.currentStage     || '';
+      document.getElementById('statusStageDate').value  = p.stageDate        || '';
+      document.getElementById('statusOrigDeadline').value = p.originalDeadline || '';
+      document.getElementById('statusProjDeadline').value = p.projectedDeadline || '';
+    }
+    document.getElementById('formSection').classList.remove('hidden');
+    document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' });
+  };
+}
+
+async function saveMeeting() {
+  const projectId = document.getElementById('projectSelect').value;
+  if (!projectId) { showToast('Select a project first.', 'error'); return; }
+
+  const date = document.getElementById('meetingDate').value;
+  const meeting = {
+    id: 'M' + Date.now(),
+    projectId,
+    date,
+    week: isoWeek(date),
+    projectName: appData.projects.find(p => p.id === projectId)?.name || '',
+    projectLead: appData.projects.find(p => p.id === projectId)?.lead || '',
+    capacity:    parseInt(document.getElementById('capacitySlider').value),
+    challenges:  document.getElementById('qChallenges').value.trim(),
+    delays:      document.getElementById('qDelays').value.trim(),
+    needs:       document.getElementById('qNeeds').value.trim(),
+    envChanges:  document.getElementById('qEnvChanges').value.trim(),
+    vibeCheck:   document.getElementById('qVibeCheck').value.trim(),
+    flags:       document.getElementById('qFlags').value.trim()
+  };
+
+  // Update project status
+  const projIdx = appData.projects.findIndex(p => p.id === projectId);
+  if (projIdx > -1) {
+    appData.projects[projIdx].generalStatus    = document.getElementById('statusGeneral').value;
+    appData.projects[projIdx].currentStage     = document.getElementById('statusStage').value.trim();
+    appData.projects[projIdx].stageDate        = document.getElementById('statusStageDate').value;
+    appData.projects[projIdx].originalDeadline = document.getElementById('statusOrigDeadline').value;
+    appData.projects[projIdx].projectedDeadline= document.getElementById('statusProjDeadline').value;
+    appData.projects[projIdx].updatedAt        = date;
+  }
+
+  appData.meetings.push(meeting);
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  showLoading(true);
+
+  try {
+    await saveData();
+    showToast('Saved!', 'success');
+    ['qChallenges','qDelays','qNeeds','qEnvChanges','qVibeCheck','qFlags'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('capacitySlider').value = 70;
+    document.getElementById('capacityVal').textContent = '70%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) {
+    showToast('Error saving: ' + e.message, 'error');
+    // Rollback
+    appData.meetings.pop();
+  }
+
+  btn.disabled = false; btn.textContent = 'Save Meeting Notes';
+  showLoading(false);
+}
+
+// Manage projects
+function toggleManage() {
+  const panel = document.getElementById('managePanel');
+  if (panel.classList.contains('hidden')) {
+    renderProjectList();
+    panel.classList.remove('hidden');
+  } else {
+    panel.classList.add('hidden');
+  }
+}
+
+function renderProjectList() {
+  const el = document.getElementById('projectListEl');
+  if (!appData.projects.length) { el.innerHTML = '<p class="text-muted">No projects yet.</p>'; return; }
+  const sorted = [...appData.projects].sort((a,b) => a.lead.localeCompare(b.lead) || a.name.localeCompare(b.name));
+  el.innerHTML = sorted.map(p =>
+    `<div class="project-list-item">
+      <span>${esc(p.name)}</span>
+      <small>${esc(p.lead)}</small>
+      <button class="btn btn-danger btn-sm" onclick="removeProject('${esc(p.id)}')">Remove</button>
+    </div>`
+  ).join('');
+}
+
+async function addProject() {
+  const name = document.getElementById('newProjectName').value.trim();
+  const lead = document.getElementById('newProjectLead').value.trim();
+  if (!name || !lead) { showToast('Enter both name and lead.', 'error'); return; }
+  const proj = { id: 'P' + Date.now(), name, lead, generalStatus: 'On Track',
+    currentStage: '', stageDate: '', originalDeadline: '', projectedDeadline: '', updatedAt: '' };
+  appData.projects.push(proj);
+  showLoading(true);
+  try {
+    await saveData();
+    document.getElementById('newProjectName').value = '';
+    document.getElementById('newProjectLead').value = '';
+    populateLeads();
+    renderProjectList();
+    showToast('Project added.', 'success');
+  } catch(e) {
+    appData.projects.pop();
+    showToast('Error: ' + e.message, 'error');
+  }
+  showLoading(false);
+}
+
+async function removeProject(id) {
+  if (!confirm('Remove this project? Meeting history remains.')) return;
+  const idx = appData.projects.findIndex(p => p.id === id);
+  const removed = appData.projects.splice(idx, 1);
+  showLoading(true);
+  try {
+    await saveData();
+    populateLeads();
+    renderProjectList();
+    document.getElementById('formSection').classList.add('hidden');
+    showToast('Project removed.', 'success');
+  } catch(e) {
+    appData.projects.splice(idx, 0, ...removed);
+    showToast('Error: ' + e.message, 'error');
+  }
+  showLoading(false);
+}
+
+function isoWeek(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const tmp = new Date(d); tmp.setDate(tmp.getDate() + 4 - (tmp.getDay()||7));
+  const y = tmp.getFullYear();
+  const start = new Date(y, 0, 1);
+  const wk = Math.ceil((((tmp - start) / 86400000) + 1) / 7);
+  return y + '-W' + String(wk).padStart(2,'0');
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast' + (type ? ' '+type : ''); el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+}
+
+init();
+</script>
+</body>
+</html>

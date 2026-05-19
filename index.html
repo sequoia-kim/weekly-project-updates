@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;font-size:15px;line-height:1.5;min-height:100vh}
+.app-header{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.app-header h1{font-size:16px;font-weight:600;flex:1}
+.mode-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;background:#dbeafe;color:#1d4ed8}
+.dash-container{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+.dash-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.dash-header h2{font-size:20px;font-weight:700;flex:1}
+.week-select{padding:8px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:14px;background:#fff;cursor:pointer}
+.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:700px){.summary-bar{grid-template-columns:repeat(2,1fr)}}
+.summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px}
+.summary-card .val{font-size:28px;font-weight:700;line-height:1}
+.summary-card .lbl{font-size:12px;color:#94a3b8;margin-top:4px}
+.summary-card.warn .val{color:#b45309}
+.summary-card.flag .val{color:#c2410c}
+.flags-section{background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.flags-section h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#c2410c;margin-bottom:14px}
+.flag-item{background:#fff;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:8px}
+.flag-item:last-child{margin-bottom:0}
+.flag-item .proj{font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:4px}
+.flag-item .txt{font-size:14px}
+.section-heading{font-size:18px;font-weight:700;margin-bottom:16px}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:32px}
+.proj-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;border-left:4px solid #e2e8f0;cursor:pointer;transition:box-shadow .15s}
+.proj-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.proj-card.on-track{border-left-color:#22c55e}
+.proj-card.at-risk{border-left-color:#f59e0b}
+.proj-card.delayed{border-left-color:#ef4444}
+.proj-card.complete{border-left-color:#3b82f6}
+.proj-card.on-hold{border-left-color:#94a3b8}
+.proj-card-name{font-size:15px;font-weight:600;margin-bottom:2px}
+.proj-card-lead{font-size:12px;color:#94a3b8;margin-bottom:10px}
+.proj-card-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.proj-card-label{font-size:12px;color:#64748b}
+.proj-card-value{font-size:12px;font-weight:500;text-align:right}
+.proj-card-value.overdue{color:#ef4444;font-weight:600}
+.status-pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px}
+.pill-on-track{background:#dcfce7;color:#15803d}
+.pill-at-risk{background:#fef3c7;color:#b45309}
+.pill-delayed{background:#fee2e2;color:#b91c1c}
+.pill-complete{background:#dbeafe;color:#1d4ed8}
+.pill-on-hold{background:#f1f5f9;color:#64748b}
+.cap-bar{height:4px;background:#e2e8f0;border-radius:4px;margin-top:8px;overflow:hidden}
+.cap-bar-fill{height:100%;border-radius:4px;background:#6366f1}
+.qa-accordion{border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:32px}
+.qa-item{border-bottom:1px solid #e2e8f0}
+.qa-item:last-child{border-bottom:none}
+.qa-item-header{padding:13px 18px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:#334155;user-select:none}
+.qa-item-header:hover{background:#f8fafc}
+.qa-item-header .count{font-size:12px;font-weight:500;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:12px}
+.qa-item-body{display:none;padding:4px 0 8px}
+.qa-item.open .qa-item-body{display:block}
+.qa-response{padding:10px 18px;border-bottom:1px solid #f8fafc;display:flex;gap:12px}
+.qa-response:last-child{border-bottom:none}
+.qa-response .proj-name{font-size:12px;font-weight:600;color:#6366f1;min-width:140px;flex-shrink:0}
+.qa-response .resp-text{font-size:13px;color:#334155;white-space:pre-wrap}
+.qa-cap{padding:10px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f8fafc}
+.qa-cap:last-child{border-bottom:none}
+.qa-cap .proj-name{font-size:12px;font-weight:600;color:#6366f1;min-width:140px;flex-shrink:0}
+.qa-cap .cap-num{font-size:20px;font-weight:700;color:#6366f1;min-width:48px}
+.qa-cap .cap-bar-wrap{flex:1}
+.slideover-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:300;display:none}
+.slideover-backdrop.open{display:block}
+.slideover{position:fixed;top:0;right:-520px;width:520px;max-width:100vw;height:100vh;background:#fff;z-index:301;transition:right .25s;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.1)}
+.slideover.open{right:0}
+.slideover-header{padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#fff}
+.slideover-header h3{flex:1;font-size:16px;font-weight:700}
+.slideover-body{padding:20px 24px}
+.history-entry{border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.history-entry-date{font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:10px}
+.history-field{margin-bottom:8px}
+.history-field .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:2px}
+.history-field .val{font-size:13px;color:#334155;white-space:pre-wrap}
+.history-field .cap-big{font-size:22px;font-weight:700;color:#6366f1}
+.loading-overlay{position:fixed;inset:0;background:rgba(248,250,252,.8);display:flex;align-items:center;justify-content:center;z-index:200}
+.loading-overlay.hidden{display:none}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+.text-muted{color:#94a3b8;font-size:13px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-sm{padding:5px 12px;font-size:13px}
+.setup-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:14px;color:#78350f}
+.setup-banner strong{display:block;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+
+<div id="slideoverBackdrop" class="slideover-backdrop" onclick="closeHistory()"></div>
+<div id="slideover" class="slideover">
+  <div class="slideover-header">
+    <h3 id="slideoverTitle">Project History</h3>
+    <button class="btn btn-secondary btn-sm" onclick="closeHistory()">Close</button>
+  </div>
+  <div class="slideover-body" id="slideoverBody"></div>
+</div>
+
+<div class="app-header">
+  <h1>Project Dashboard</h1>
+  <span class="mode-badge">Live</span>
+  <button class="btn btn-secondary btn-sm" onclick="loadDashboard(document.getElementById('weekSelect').value)">&#8635; Refresh</button>
+</div>
+
+<div class="dash-container">
+
+  <div id="setupBanner" class="setup-banner hidden">
+    <strong>Setup required</strong>
+    Enter your GitHub username and repo name in the URL: add <code>?owner=YOUR_USERNAME&amp;repo=YOUR_REPO</code>
+  </div>
+
+  <div class="dash-header">
+    <h2 id="dashWeekLabel">Loading…</h2>
+    <select class="week-select" id="weekSelect" onchange="loadDashboard(this.value)"></select>
+  </div>
+
+  <div class="summary-bar">
+    <div class="summary-card"><div class="val" id="sumMeetings">—</div><div class="lbl">Meetings this week</div></div>
+    <div class="summary-card"><div class="val" id="sumCapacity">—</div><div class="lbl">Avg. capacity</div></div>
+    <div class="summary-card warn"><div class="val" id="sumAtRisk">—</div><div class="lbl">At risk / delayed</div></div>
+    <div class="summary-card flag"><div class="val" id="sumFlags">—</div><div class="lbl">Flags raised</div></div>
+  </div>
+
+  <div id="flagsSection" class="flags-section hidden">
+    <h3>&#9888; Important Flags This Week</h3>
+    <div id="flagsList"></div>
+  </div>
+
+  <div class="section-heading">All Projects</div>
+  <div class="project-grid" id="projectGrid"></div>
+
+  <div class="section-heading">Weekly Responses</div>
+  <div class="qa-accordion" id="qaAccordion"></div>
+
+</div>
+
+<script>
+let appData = { projects: [], meetings: [] };
+
+function getConfig() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    owner: params.get('owner') || '',
+    repo:  params.get('repo')  || '',
+    token: params.get('token') || ''
+  };
+}
+
+async function init() {
+  const { owner, repo } = getConfig();
+  if (!owner || !repo) {
+    document.getElementById('setupBanner').classList.remove('hidden');
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('dashWeekLabel').textContent = 'Not configured';
+    return;
+  }
+  await loadData(owner, repo, token);
+  loadDashboard(null);
+}
+
+async function loadData(owner, repo, token) {
+  try {
+    const headers = token ? { 'Authorization': `token ${token}` } : {};
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/data.json?t=` + Date.now(),
+      { headers }
+    );
+    if (!res.ok) throw new Error('Could not load data (status ' + res.status + ')');
+    const json = await res.json();
+    appData = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
+  } catch(e) {
+    document.getElementById('dashWeekLabel').textContent = 'Error loading data';
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    console.error(e);
+  }
+}
+
+function loadDashboard(selectedWeek) {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+
+  const weeks = [...new Set(appData.meetings.map(m => m.week))].filter(Boolean).sort().reverse();
+  const currentWeek = isoWeek(new Date());
+  if (!weeks.includes(currentWeek)) weeks.unshift(currentWeek);
+
+  if (!selectedWeek || !weeks.includes(selectedWeek)) selectedWeek = weeks[0];
+
+  // Week selector
+  const wsel = document.getElementById('weekSelect');
+  wsel.innerHTML = weeks.map(w =>
+    `<option value="${w}" ${w===selectedWeek?'selected':''}>${w}${w===currentWeek?' (current)':''}</option>`
+  ).join('');
+
+  document.getElementById('dashWeekLabel').textContent = 'Week: ' + selectedWeek;
+
+  const weekMeetings = appData.meetings.filter(m => m.week === selectedWeek);
+
+  // Summary
+  const total = weekMeetings.length;
+  const avgCap = total ? Math.round(weekMeetings.reduce((s,m) => s + (m.capacity||0), 0) / total) : 0;
+  const atRisk = appData.projects.filter(p => p.generalStatus === 'At Risk' || p.generalStatus === 'Delayed').length;
+  const flagCount = weekMeetings.filter(m => m.flags && m.flags.trim()).length;
+  document.getElementById('sumMeetings').textContent = total;
+  document.getElementById('sumCapacity').textContent = total ? avgCap + '%' : '—';
+  document.getElementById('sumAtRisk').textContent = atRisk;
+  document.getElementById('sumFlags').textContent = flagCount;
+
+  // Flags
+  const flags = weekMeetings.filter(m => m.flags && m.flags.trim());
+  if (flags.length) {
+    document.getElementById('flagsList').innerHTML = flags.map(m =>
+      `<div class="flag-item"><div class="proj">${esc(m.projectName)} — ${esc(m.projectLead)}</div><div class="txt">${esc(m.flags)}</div></div>`
+    ).join('');
+    document.getElementById('flagsSection').classList.remove('hidden');
+  } else {
+    document.getElementById('flagsSection').classList.add('hidden');
+  }
+
+  // Latest meeting per project this week
+  const latestByProject = {};
+  weekMeetings.forEach(m => {
+    if (!latestByProject[m.projectId] || m.date > latestByProject[m.projectId].date)
+      latestByProject[m.projectId] = m;
+  });
+
+  // Project grid
+  const grid = document.getElementById('projectGrid');
+  if (!appData.projects.length) {
+    grid.innerHTML = '<p class="text-muted">No projects yet.</p>';
+  } else {
+    grid.innerHTML = appData.projects.map(p => {
+      const cls = statusClass(p.generalStatus);
+      const pill = statusPill(p.generalStatus);
+      const latest = latestByProject[p.id];
+      const overdue = p.originalDeadline && p.projectedDeadline && p.projectedDeadline > p.originalDeadline;
+      return `<div class="proj-card ${cls}" onclick="openHistory('${esc(p.id)}','${esc(p.name)}')">
+        <div class="proj-card-name">${esc(p.name)}</div>
+        <div class="proj-card-lead">${esc(p.lead)}</div>
+        <div class="proj-card-row"><span class="proj-card-label">Status</span><span class="status-pill ${pill}">${esc(p.generalStatus||'On Track')}</span></div>
+        ${p.currentStage ? `<div class="proj-card-row"><span class="proj-card-label">Stage</span><span class="proj-card-value">${esc(p.currentStage)}${p.stageDate?' · '+esc(p.stageDate):''}</span></div>` : ''}
+        ${p.originalDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Deadline</span><span class="proj-card-value">${esc(p.originalDeadline)}</span></div>` : ''}
+        ${p.projectedDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Projected</span><span class="proj-card-value${overdue?' overdue':''}">${esc(p.projectedDeadline)}</span></div>` : ''}
+        ${latest ? `<div class="cap-bar"><div class="cap-bar-fill" style="width:${latest.capacity}%"></div></div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Q&A accordion
+  const questions = [
+    { key: 'capacity',   label: 'Capacity' },
+    { key: 'challenges', label: 'Challenges & Roadblocks' },
+    { key: 'delays',     label: 'Delays' },
+    { key: 'needs',      label: 'Needs' },
+    { key: 'envChanges', label: 'Environment Changes' },
+    { key: 'vibeCheck',  label: 'Vibe Check' }
+  ];
+
+  document.getElementById('qaAccordion').innerHTML = questions.map((q, i) => {
+    const responses = weekMeetings.filter(m => q.key === 'capacity' || (m[q.key] && m[q.key].trim()));
+    let body = '';
+    if (q.key === 'capacity') {
+      body = weekMeetings.map(m =>
+        `<div class="qa-cap"><span class="proj-name">${esc(m.projectName)}</span><span class="cap-num">${m.capacity}%</span><div class="cap-bar-wrap"><div class="cap-bar"><div class="cap-bar-fill" style="width:${m.capacity}%"></div></div></div></div>`
+      ).join('') || '<div style="padding:10px 18px" class="text-muted">No responses this week.</div>';
+    } else {
+      body = responses.map(m =>
+        `<div class="qa-response"><span class="proj-name">${esc(m.projectName)}</span><span class="resp-text">${esc(m[q.key])}</span></div>`
+      ).join('') || '<div style="padding:10px 18px" class="text-muted">No responses this week.</div>';
+    }
+    return `<div class="qa-item${i===0?' open':''}">
+      <div class="qa-item-header" onclick="this.parentElement.classList.toggle('open')">
+        ${esc(q.label)}<span class="count">${responses.length}</span>
+      </div>
+      <div class="qa-item-body">${body}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+function openHistory(projectId, projectName) {
+  document.getElementById('slideoverTitle').textContent = projectName;
+  const meetings = appData.meetings
+    .filter(m => m.projectId === projectId)
+    .sort((a,b) => b.date.localeCompare(a.date));
+
+  const body = document.getElementById('slideoverBody');
+  if (!meetings.length) {
+    body.innerHTML = '<p class="text-muted">No meeting history yet.</p>';
+  } else {
+    const fields = [
+      { key: 'capacity',   label: 'Capacity',              cap: true },
+      { key: 'challenges', label: 'Challenges' },
+      { key: 'delays',     label: 'Delays' },
+      { key: 'needs',      label: 'Needs' },
+      { key: 'envChanges', label: 'Environment Changes' },
+      { key: 'vibeCheck',  label: 'Vibe Check' },
+      { key: 'flags',      label: 'Flags' }
+    ];
+    body.innerHTML = meetings.map(m =>
+      `<div class="history-entry">
+        <div class="history-entry-date">${esc(m.date)} — ${esc(m.week)}</div>
+        ${fields.filter(f => f.cap || (m[f.key] && String(m[f.key]).trim())).map(f =>
+          `<div class="history-field">
+            <div class="lbl">${esc(f.label)}</div>
+            <div class="val${f.cap?' cap-big':''}">${f.cap ? m.capacity+'%' : esc(m[f.key])}</div>
+          </div>`
+        ).join('')}
+      </div>`
+    ).join('');
+  }
+  document.getElementById('slideover').classList.add('open');
+  document.getElementById('slideoverBackdrop').classList.add('open');
+}
+
+function closeHistory() {
+  document.getElementById('slideover').classList.remove('open');
+  document.getElementById('slideoverBackdrop').classList.remove('open');
+}
+
+function statusClass(s) {
+  return { 'On Track':'on-track','At Risk':'at-risk','Delayed':'delayed','Complete':'complete','On Hold':'on-hold' }[s] || 'on-track';
+}
+function statusPill(s) {
+  return { 'On Track':'pill-on-track','At Risk':'pill-at-risk','Delayed':'pill-delayed','Complete':'pill-complete','On Hold':'pill-on-hold' }[s] || 'pill-on-track';
+}
+function isoWeek(date) {
+  const d = new Date(date); d.setDate(d.getDate() + 4 - (d.getDay()||7));
+  const y = d.getFullYear(), start = new Date(y,0,1);
+  return y + '-W' + String(Math.ceil((((d-start)/86400000)+1)/7)).padStart(2,'0');
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>
