@@ -175,7 +175,23 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 
 <script>
 const SITE_PASSWORD = '__SITE_PASSWORD__';
+const FIREBASE_API_KEY = '__FIREBASE_API_KEY__';
 const AUTH_KEY = 'wpu_auth';
+let _authToken = null;
+
+async function getAuthToken() {
+  if (_authToken) return _authToken;
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnSecureToken: true }) }
+    );
+    const d = await res.json();
+    _authToken = d.idToken || null;
+  } catch(e) { _authToken = null; }
+  return _authToken;
+}
 
 function checkAuth() {
   if (localStorage.getItem(AUTH_KEY) === SITE_PASSWORD) {
@@ -211,7 +227,9 @@ async function init() {
 
 async function loadData() {
   try {
-    const res = await fetch(FIREBASE_URL + '?t=' + Date.now());
+    const token = await getAuthToken();
+    const url = FIREBASE_URL + '?t=' + Date.now() + (token ? '&auth=' + token : '');
+    const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data) appData = data;

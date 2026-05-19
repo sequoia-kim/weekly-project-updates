@@ -236,10 +236,26 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 
 <script>
 const FIREBASE_URL = '__FIREBASE_URL__';
+const FIREBASE_API_KEY = '__FIREBASE_API_KEY__';
 const SITE_PASSWORD = '__SITE_PASSWORD__';
 const AUTH_KEY = 'wpu_auth';
 
 let appData = { projects: [], meetings: [] };
+let _authToken = null;
+
+async function getAuthToken() {
+  if (_authToken) return _authToken;
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnSecureToken: true }) }
+    );
+    const d = await res.json();
+    _authToken = d.idToken || null;
+  } catch(e) { _authToken = null; }
+  return _authToken;
+}
 
 // ── Auth ─────────────────────────────────────────────────────
 function checkPassword() {
@@ -269,7 +285,9 @@ async function init() {
 async function loadData() {
   showLoading(true);
   try {
-    const res = await fetch(FIREBASE_URL + '?t=' + Date.now());
+    const token = await getAuthToken();
+    const url = FIREBASE_URL + '?t=' + Date.now() + (token ? '&auth=' + token : '');
+    const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data) {
@@ -286,7 +304,9 @@ async function loadData() {
 async function saveData() {
   localStorage.setItem('wpu_cache', JSON.stringify(appData));
   try {
-    const res = await fetch(FIREBASE_URL, {
+    const token = await getAuthToken();
+    const url = FIREBASE_URL + (token ? '?auth=' + token : '');
+    const res = await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(appData)
