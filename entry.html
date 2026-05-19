@@ -273,7 +273,7 @@ async function loadData() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data) {
-      appData = data;
+      appData = { projects: data.projects || [], meetings: data.meetings || [] };
       localStorage.setItem('wpu_cache', JSON.stringify(appData));
     }
   } catch(e) {
