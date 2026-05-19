@@ -66,6 +66,24 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 @keyframes spin{to{transform:rotate(360deg)}}
 .hidden{display:none!important}
 .text-muted{color:#94a3b8;font-size:13px}
+.entries-panel{border:1px solid #e2e8f0;border-radius:10px;background:#fff;margin-bottom:16px;overflow:hidden}
+.entries-panel-header{padding:14px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
+.entries-panel-body{padding:0}
+.entry-row{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid #f1f5f9;font-size:14px}
+.entry-row:last-child{border-bottom:none}
+.entry-row-main{flex:1;min-width:0}
+.entry-row-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-row-meta{font-size:12px;color:#94a3b8;margin-top:1px}
+.entry-row-cap{font-size:13px;font-weight:600;color:#6366f1;min-width:40px;text-align:right}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:400;display:none}
+.modal-backdrop.open{display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal-header{padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1;padding:4px}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #e2e8f0;display:flex;gap:10px;justify-content:flex-end}
+.section-divider{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:18px 0 12px}
 </style>
 </head>
 <body>
@@ -87,10 +105,84 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 <div class="app-header">
   <h1>Weekly Project Check-in</h1>
   <span class="mode-badge">Entry</span>
+  <button class="btn btn-secondary btn-sm" onclick="toggleEntries()">Past Entries</button>
   <button class="btn btn-secondary btn-sm" onclick="toggleManage()">Manage Projects</button>
 </div>
 
 <div class="main-container">
+
+  <!-- Past entries panel -->
+  <div id="entriesPanel" class="entries-panel hidden">
+    <div class="entries-panel-header">
+      <span>Past Entries</span>
+      <button class="btn btn-secondary btn-sm" onclick="toggleEntries()">Close</button>
+    </div>
+    <div class="entries-panel-body" id="entriesListEl"></div>
+  </div>
+
+  <!-- Edit entry modal -->
+  <div id="editModalBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeEditModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit Entry</h3>
+        <button class="modal-close" onclick="closeEditModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Project</label>
+          <input type="text" id="editProjectName" readonly style="background:#f8fafc">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="editDate">
+          </div>
+          <div class="form-group">
+            <label>Capacity</label>
+            <div class="slider-wrap">
+              <input type="range" id="editCapacity" min="0" max="100" step="5" oninput="document.getElementById('editCapacityVal').textContent=this.value+'%'">
+              <span class="slider-val" id="editCapacityVal">70%</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-divider">Check-in Questions</div>
+        <div class="form-group"><label>Challenges</label><textarea id="editChallenges" rows="2"></textarea></div>
+        <div class="form-group"><label>Delays</label><textarea id="editDelays" rows="2"></textarea></div>
+        <div class="form-group"><label>Needs</label><textarea id="editNeeds" rows="2"></textarea></div>
+        <div class="form-group"><label>Environment changes</label><textarea id="editEnvChanges" rows="2"></textarea></div>
+        <div class="form-group"><label>Vibe check</label><textarea id="editVibeCheck" rows="2"></textarea></div>
+        <div class="form-group"><label>Important flags</label><textarea id="editFlags" rows="2"></textarea></div>
+        <div class="section-divider">Project Status</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>General status</label>
+            <select id="editStatusGeneral">
+              <option>On Track</option><option>At Risk</option><option>Delayed</option><option>Complete</option><option>On Hold</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Current stage</label>
+            <input type="text" id="editStatusStage">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stage date</label>
+            <input type="date" id="editStatusStageDate">
+          </div>
+          <div class="form-group">
+            <label>Projected completion date</label>
+            <input type="date" id="editStatusProjDeadline">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" onclick="deleteEntry()">Delete entry</button>
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEditedEntry()">Save changes</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Manage projects panel -->
   <div id="managePanel" class="manage-panel hidden">
@@ -392,6 +484,100 @@ async function saveMeeting() {
   btn.disabled = false; btn.textContent = 'Save Meeting Notes';
   showLoading(false);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Past entries ─────────────────────────────────────────────
+let editingEntryId = null;
+
+function toggleEntries() {
+  const panel = document.getElementById('entriesPanel');
+  if (panel.classList.contains('hidden')) { renderEntries(); panel.classList.remove('hidden'); }
+  else panel.classList.add('hidden');
+}
+
+function renderEntries() {
+  const el = document.getElementById('entriesListEl');
+  if (!appData.meetings.length) { el.innerHTML = '<p class="text-muted" style="padding:16px 20px">No entries yet.</p>'; return; }
+  const sorted = [...appData.meetings].sort((a, b) => b.date.localeCompare(a.date));
+  el.innerHTML = sorted.map(m => `
+    <div class="entry-row">
+      <div class="entry-row-main">
+        <div class="entry-row-name">${esc(m.projectName)}</div>
+        <div class="entry-row-meta">${m.date} · ${m.projectLead}</div>
+      </div>
+      <span class="entry-row-cap">${m.capacity}%</span>
+      <button class="btn btn-secondary btn-sm" onclick="openEditModal('${esc(m.id)}')">Edit</button>
+    </div>`).join('');
+}
+
+function openEditModal(id) {
+  const m = appData.meetings.find(x => x.id === id);
+  if (!m) return;
+  editingEntryId = id;
+  const proj = appData.projects.find(p => p.id === m.projectId);
+  document.getElementById('editProjectName').value       = m.projectName || '';
+  document.getElementById('editDate').value              = m.date || '';
+  document.getElementById('editCapacity').value          = m.capacity || 70;
+  document.getElementById('editCapacityVal').textContent = (m.capacity || 70) + '%';
+  document.getElementById('editChallenges').value        = m.challenges || '';
+  document.getElementById('editDelays').value            = m.delays || '';
+  document.getElementById('editNeeds').value             = m.needs || '';
+  document.getElementById('editEnvChanges').value        = m.envChanges || '';
+  document.getElementById('editVibeCheck').value         = m.vibeCheck || '';
+  document.getElementById('editFlags').value             = m.flags || '';
+  document.getElementById('editStatusGeneral').value     = proj?.generalStatus     || 'On Track';
+  document.getElementById('editStatusStage').value       = proj?.currentStage      || '';
+  document.getElementById('editStatusStageDate').value   = proj?.stageDate         || '';
+  document.getElementById('editStatusProjDeadline').value= proj?.projectedDeadline || '';
+  document.getElementById('editModalBackdrop').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModalBackdrop').classList.remove('open');
+  editingEntryId = null;
+}
+
+async function saveEditedEntry() {
+  const idx = appData.meetings.findIndex(x => x.id === editingEntryId);
+  if (idx === -1) return;
+  const m = appData.meetings[idx];
+  const newDate = document.getElementById('editDate').value;
+  Object.assign(m, {
+    date:       newDate,
+    week:       isoWeek(newDate),
+    capacity:   parseInt(document.getElementById('editCapacity').value),
+    challenges: document.getElementById('editChallenges').value.trim(),
+    delays:     document.getElementById('editDelays').value.trim(),
+    needs:      document.getElementById('editNeeds').value.trim(),
+    envChanges: document.getElementById('editEnvChanges').value.trim(),
+    vibeCheck:  document.getElementById('editVibeCheck').value.trim(),
+    flags:      document.getElementById('editFlags').value.trim()
+  });
+  const projIdx = appData.projects.findIndex(p => p.id === m.projectId);
+  if (projIdx > -1) {
+    Object.assign(appData.projects[projIdx], {
+      generalStatus:     document.getElementById('editStatusGeneral').value,
+      currentStage:      document.getElementById('editStatusStage').value.trim(),
+      stageDate:         document.getElementById('editStatusStageDate').value,
+      projectedDeadline: document.getElementById('editStatusProjDeadline').value,
+      updatedAt:         newDate
+    });
+  }
+  showLoading(true);
+  await saveData();
+  showLoading(false);
+  closeEditModal();
+  renderEntries();
+}
+
+async function deleteEntry() {
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  appData.meetings = appData.meetings.filter(x => x.id !== editingEntryId);
+  showLoading(true);
+  await saveData();
+  showLoading(false);
+  closeEditModal();
+  renderEntries();
 }
 
 // ── Manage projects ───────────────────────────────────────────
