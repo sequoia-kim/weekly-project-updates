@@ -342,32 +342,33 @@ async function loadData() {
 }
 
 async function saveData() {
-  const c = cfg();
-  // Always fetch fresh SHA before writing to avoid mismatch errors
-  const readRes = await fetch(
-    `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
-    { headers: { 'Authorization': `token ${c.token}` } }
-  );
-  if (!readRes.ok) throw new Error('Could not read data.json (status ' + readRes.status + ')');
-  const fileInfo = await readRes.json();
-  fileSha = fileInfo.sha;
-
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
-  const res = await fetch(
-    `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
-    {
-      method: 'PUT',
-      headers: { 'Authorization': `token ${c.token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Update check-in data', content, sha: fileSha, branch: 'main' })
-    }
-  );
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'GitHub write failed');
-  }
-  const result = await res.json();
-  fileSha = result.content.sha;
+  // Always save locally first — data is never lost on reload
   localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
+
+  // Sync to GitHub in background so dashboard updates
+  const token = (localStorage.getItem('gh_token') || '').trim();
+  if (!token) return;
+  try {
+    const readRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data.json`,
+      { headers: { 'Authorization': `token ${token}` } }
+    );
+    if (!readRes.ok) throw new Error('read failed');
+    const fileInfo = await readRes.json();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
+    const writeRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data.json`,
+      {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'Update check-in data', content, sha: fileInfo.sha, branch: 'main' })
+      }
+    );
+    if (!writeRes.ok) throw new Error('write failed');
+    showToast('Saved ✓', 'success');
+  } catch(e) {
+    showToast('Saved locally. Dashboard will sync when connection improves.', '');
+  }
 }
 
 async function testConnection() {
@@ -484,24 +485,15 @@ async function saveMeeting() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = 'Saving…';
   showLoading(true);
-
-  try {
-    await saveData();
-    showToast('Saved!', 'success');
-    ['qChallenges','qDelays','qNeeds','qEnvChanges','qVibeCheck','qFlags'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('capacitySlider').value = 70;
-    document.getElementById('capacityVal').textContent = '70%';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch(e) {
-    showToast('Error saving: ' + e.message, 'error');
-    // Rollback
-    appData.meetings.pop();
-  }
-
+  await saveData();
+  ['qChallenges','qDelays','qNeeds','qEnvChanges','qVibeCheck','qFlags'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('capacitySlider').value = 70;
+  document.getElementById('capacityVal').textContent = '70%';
   btn.disabled = false; btn.textContent = 'Save Meeting Notes';
   showLoading(false);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Manage projects
@@ -539,18 +531,12 @@ async function addProject() {
     originalDeadline: '', projectedDeadline: '', updatedAt: '' };
   appData.projects.push(proj);
   showLoading(true);
-  try {
-    await saveData();
-    document.getElementById('newProjectName').value = '';
-    document.getElementById('newProjectLead').value = '';
-    document.getElementById('newProjectStream').value = '';
-    populateLeads();
-    renderProjectList();
-    showToast('Project added.', 'success');
-  } catch(e) {
-    appData.projects.pop();
-    showToast('Error: ' + e.message, 'error');
-  }
+  await saveData();
+  document.getElementById('newProjectName').value = '';
+  document.getElementById('newProjectLead').value = '';
+  document.getElementById('newProjectStream').value = '';
+  populateLeads();
+  renderProjectList();
   showLoading(false);
 }
 
@@ -559,16 +545,10 @@ async function removeProject(id) {
   const idx = appData.projects.findIndex(p => p.id === id);
   const removed = appData.projects.splice(idx, 1);
   showLoading(true);
-  try {
-    await saveData();
-    populateLeads();
-    renderProjectList();
-    document.getElementById('formSection').classList.add('hidden');
-    showToast('Project removed.', 'success');
-  } catch(e) {
-    appData.projects.splice(idx, 0, ...removed);
-    showToast('Error: ' + e.message, 'error');
-  }
+  await saveData();
+  populateLeads();
+  renderProjectList();
+  document.getElementById('formSection').classList.add('hidden');
   showLoading(false);
 }
 
