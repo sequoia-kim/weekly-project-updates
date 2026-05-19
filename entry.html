@@ -301,6 +301,7 @@ function isConfigured() {
 
 async function init() {
   if (localStorage.getItem(AUTH_KEY) !== SITE_PASSWORD) return;
+  document.getElementById('passwordGate').style.display = 'none';
   // Set today's date
   const t = new Date();
   document.getElementById('meetingDate').value =
