@@ -706,14 +706,14 @@ init();
 
 // bubble pause on click
 (function(){
+  var paused=false;
   document.addEventListener('click',function(e){
-    if(e.target.closest('#themeToggleBtn')||e.target.closest('#passwordGate')) return;
+    if(e.target.closest('button')||e.target.closest('a')||e.target.closest('select')||e.target.closest('input')||e.target.closest('#passwordGate')||e.target.closest('.modal')||e.target.closest('.slideover')) return;
+    paused=!paused;
     var b=document.getElementById('bubbles');
     if(!b) return;
-    var paused=b.style.getPropertyValue('--paused')==='1';
-    b.style.setProperty('--paused',paused?'0':'1');
     b.querySelectorAll('.bubble').forEach(function(el){
-      el.style.animationPlayState=paused?'running':'paused';
+      el.style.animationPlayState=paused?'paused':'running';
     });
   });
 })();
