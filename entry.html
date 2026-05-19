@@ -105,6 +105,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 <div class="app-header">
   <h1>Weekly Project Check-in</h1>
   <span class="mode-badge">Entry</span>
+  <button class="btn btn-primary btn-sm" onclick="toggleNewEntry()">+ New Entry</button>
   <button class="btn btn-secondary btn-sm" onclick="toggleEntries()">Past Entries</button>
   <button class="btn btn-secondary btn-sm" onclick="toggleManage()">Manage Projects</button>
 </div>
@@ -217,6 +218,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
     </div>
   </div>
 
+  <!-- New entry form -->
+  <div id="newEntrySection" class="hidden">
+
   <!-- Meeting details -->
   <div class="card">
     <div class="card-title">Meeting Details</div>
@@ -317,6 +321,8 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 
     <button class="btn btn-primary btn-full" id="saveBtn" onclick="saveMeeting()">Save Meeting Notes</button>
   </div>
+
+  </div> <!-- end newEntrySection -->
 </div>
 
 <script>
@@ -484,6 +490,14 @@ async function saveMeeting() {
   btn.disabled = false; btn.textContent = 'Save Meeting Notes';
   showLoading(false);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── New entry toggle ─────────────────────────────────────────
+function toggleNewEntry() {
+  const section = document.getElementById('newEntrySection');
+  const isHidden = section.classList.contains('hidden');
+  section.classList.toggle('hidden', !isHidden);
+  if (isHidden) section.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ── Past entries ─────────────────────────────────────────────
