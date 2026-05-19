@@ -89,9 +89,6 @@ body{font-family:'Nunito',system-ui,sans-serif;background:#fffbf5;color:#1e293b;
 
 /* === Apple Liquid Glass Theme === */
 body{background:linear-gradient(155deg,#b8cff5 0%,#d6e8ff 30%,#c5ddf7 55%,#a8c8f0 80%,#cce0ff 100%)!important;min-height:100vh}
-#bubbles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.88) 0%,rgba(220,235,255,.45) 28%,rgba(180,210,255,.12) 55%,transparent 100%);border:1px solid rgba(255,255,255,.75);animation:bubbleFloat linear infinite;box-shadow:inset 0 2px 10px rgba(255,255,255,.8),inset -2px -2px 8px rgba(140,180,255,.25),0 4px 24px rgba(100,150,255,.12)}
-@keyframes bubbleFloat{0%{transform:translateY(105vh) scale(.3);opacity:0}5%{opacity:.85}90%{opacity:.6}100%{transform:translateY(-140px) scale(1);opacity:0}}
 
 /* Layout */
 .container,.main-container,.dash-container{position:relative;z-index:1}
@@ -197,7 +194,6 @@ select option{background:#d6e8ff;color:#0f2d5e}
 
 /* === Clean/Static Mode === */
 body.clean-mode{background:#eef4ff!important}
-body.clean-mode #bubbles{display:none!important}
 body.clean-mode .app-header{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important}
 body.clean-mode .card,body.clean-mode .proj-card,body.clean-mode .summary-card,body.clean-mode .manage-panel,body.clean-mode .entries-panel,body.clean-mode .status-section,body.clean-mode .qa-accordion,body.clean-mode .cal-grid,body.clean-mode .history-entry,body.clean-mode .flag-item,body.clean-mode .modal{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important;transition:box-shadow .15s}
 body.clean-mode .card:hover,body.clean-mode .proj-card:hover,body.clean-mode .summary-card:hover{transform:none!important;background:#fff!important;box-shadow:0 4px 12px rgba(0,0,0,.08)!important}
@@ -224,6 +220,8 @@ body.clean-mode .manage-panel-header,body.clean-mode .entries-panel-header{backg
 body.clean-mode .cal-nav-btn{background:#fff!important;border-color:#e2e8f0!important;backdrop-filter:none!important}
 body.clean-mode .loading-overlay{background:rgba(238,244,255,.85)!important;backdrop-filter:none!important}
 body.clean-mode .toast{backdrop-filter:none!important}
+body.clean-mode #gradBg{display:none!important}
+body.clean-mode #grain{display:none!important}
 body.clean-mode .no-date-chip{background:#fff!important;border-color:#e2e8f0!important}
 
 /* Toggle button */
@@ -231,10 +229,21 @@ body.clean-mode .no-date-chip{background:#fff!important;border-color:#e2e8f0!imp
 #themeToggleBtn:hover{background:rgba(255,255,255,.55);box-shadow:0 6px 24px rgba(100,150,255,.25),inset 0 1px 0 rgba(255,255,255,.9)}
 body.clean-mode #themeToggleBtn{background:#fff;border-color:#e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.08);backdrop-filter:none;color:#3b82f6}
 body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
-</style>
+#gradBg{position:fixed;inset:0;z-index:0;overflow:hidden;filter:blur(80px) saturate(140%)}
+.blob{position:absolute;border-radius:50%}
+.b1{width:70vw;height:70vw;background:radial-gradient(circle,rgba(147,197,253,.72),transparent 70%);top:-15%;left:-15%;animation:drift1 60s ease-in-out infinite alternate}
+.b2{width:55vw;height:55vw;background:radial-gradient(circle,rgba(165,180,252,.6),transparent 70%);top:30%;right:-10%;animation:drift2 48s ease-in-out infinite alternate}
+.b3{width:55vw;height:55vw;background:radial-gradient(circle,rgba(186,230,253,.68),transparent 70%);bottom:-10%;left:20%;animation:drift3 70s ease-in-out infinite alternate}
+.b4{width:42vw;height:42vw;background:radial-gradient(circle,rgba(199,210,254,.62),transparent 70%);top:10%;left:42%;animation:drift4 54s ease-in-out infinite alternate}
+@keyframes drift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(16vw,13vh) scale(1.18)}}
+@keyframes drift2{0%{transform:translate(0,0) scale(1.1)}100%{transform:translate(-13vw,11vh) scale(.9)}}
+@keyframes drift3{0%{transform:translate(0,0) scale(.95)}100%{transform:translate(11vw,-15vh) scale(1.12)}}
+@keyframes drift4{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-9vw,17vh) scale(1.06)}}
+#grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.048;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}</style>
 </head>
 <body>
-<div id="bubbles"></div>
+<div id="gradBg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+<div id="grain"></div>
 
 <div id="passwordGate" style="position:fixed;inset:0;background:#fffbf5;display:flex;align-items:center;justify-content:center;z-index:1000">
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:40px;max-width:360px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)">
@@ -526,21 +535,6 @@ function esc(s) {
 checkAuth();
 loadData();
 
-// bubble generator
-(function(){
-  var c=document.getElementById('bubbles');
-  if(!c)return;
-  for(var i=0;i<20;i++){
-    var b=document.createElement('div');
-    b.className='bubble';
-    var s=Math.random()*130+25;
-    b.style.width=s+'px';b.style.height=s+'px';
-    b.style.left=(Math.random()*112-6)+'%';
-    b.style.animationDuration=(Math.random()*35+30)+'s';
-    b.style.animationDelay=(Math.random()*-35)+'s';
-    c.appendChild(b);
-  }
-})();
 
 // theme toggle
 (function(){
@@ -558,15 +552,14 @@ loadData();
   apply(localStorage.getItem(KEY)==='clean');
 })();
 
-// bubble pause on click
+
+// gradient pause on click
 (function(){
   var paused=false;
   document.addEventListener('click',function(e){
     if(e.target.closest('button')||e.target.closest('a')||e.target.closest('select')||e.target.closest('input')||e.target.closest('#passwordGate')||e.target.closest('.modal')||e.target.closest('.slideover')) return;
     paused=!paused;
-    var b=document.getElementById('bubbles');
-    if(!b) return;
-    b.querySelectorAll('.bubble').forEach(function(el){
+    document.querySelectorAll('.blob').forEach(function(el){
       el.style.animationPlayState=paused?'paused':'running';
     });
   });
