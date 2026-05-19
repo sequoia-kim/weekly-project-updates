@@ -319,15 +319,11 @@ async function init() {
 async function loadData() {
   showLoading(true);
   try {
-    const c = cfg();
     const res = await fetch(
-      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
-      { headers: { 'Authorization': `token ${c.token}`, 'Cache-Control': 'no-cache' } }
+      `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/data.json?t=` + Date.now()
     );
-    if (!res.ok) throw new Error('Could not read data.json (status ' + res.status + ')');
-    const json = await res.json();
-    fileSha = json.sha;
-    appData = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    appData = await res.json();
   } catch(e) {
     showToast('Error loading data: ' + e.message, 'error');
   }
