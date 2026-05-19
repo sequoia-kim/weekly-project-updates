@@ -217,16 +217,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
           <input type="date" id="statusStageDate">
         </div>
         <div class="form-group">
-          <label>Original Deadline</label>
-          <input type="date" id="statusOrigDeadline">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group" style="margin-bottom:0">
-          <label>Projected Deadline</label>
+          <label>Deadline</label>
           <input type="date" id="statusProjDeadline">
         </div>
-        <div></div>
       </div>
     </div>
 
@@ -351,7 +344,6 @@ function filterProjects() {
       document.getElementById('statusGeneral').value      = p.generalStatus     || 'On Track';
       document.getElementById('statusStage').value        = p.currentStage      || '';
       document.getElementById('statusStageDate').value    = p.stageDate         || '';
-      document.getElementById('statusOrigDeadline').value = p.originalDeadline  || '';
       document.getElementById('statusProjDeadline').value = p.projectedDeadline || '';
     }
     document.getElementById('formSection').classList.remove('hidden');
@@ -384,7 +376,6 @@ async function saveMeeting() {
       generalStatus:    document.getElementById('statusGeneral').value,
       currentStage:     document.getElementById('statusStage').value.trim(),
       stageDate:        document.getElementById('statusStageDate').value,
-      originalDeadline: document.getElementById('statusOrigDeadline').value,
       projectedDeadline:document.getElementById('statusProjDeadline').value,
       updatedAt: date
     });
@@ -430,7 +421,7 @@ async function addProject() {
   if (!name || !lead) { showToast('Enter both name and lead.', 'error'); return; }
   appData.projects.push({ id: 'P' + Date.now(), name, lead, stream,
     generalStatus: 'On Track', currentStage: '', stageDate: '',
-    originalDeadline: '', projectedDeadline: '', updatedAt: '' });
+    projectedDeadline: '', updatedAt: '' });
   showLoading(true);
   await saveData();
   document.getElementById('newProjectName').value = '';
