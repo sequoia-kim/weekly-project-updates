@@ -98,17 +98,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
   <!-- Setup card -->
   <div id="setupCard" class="setup-card hidden">
     <div class="card-title">GitHub Settings</div>
-    <p style="font-size:13px;color:#78350f;margin-bottom:16px">Enter your GitHub details once. These are stored only in your browser.</p>
-    <div class="form-row">
-      <div class="form-group">
-        <label>GitHub Username</label>
-        <input type="text" id="cfgOwner" placeholder="e.g. sequoia-kim">
-      </div>
-      <div class="form-group">
-        <label>Repository Name</label>
-        <input type="text" id="cfgRepo" placeholder="e.g. project-tracker">
-      </div>
-    </div>
+    <p style="font-size:13px;color:#78350f;margin-bottom:16px">Enter your GitHub Personal Access Token. Stored only in your browser.</p>
     <div class="form-group">
       <label>Personal Access Token</label>
       <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx">
@@ -290,10 +280,13 @@ function checkPassword() {
 let appData = { projects: [], meetings: [] };
 let fileSha = '';
 
+const REPO_OWNER = 'sequoia-kim';
+const REPO_NAME  = 'weekly-project-updates';
+
 function cfg() {
   return {
-    owner: (localStorage.getItem('gh_owner') || '').trim(),
-    repo:  (localStorage.getItem('gh_repo')  || '').trim(),
+    owner: REPO_OWNER,
+    repo:  REPO_NAME,
     token: (localStorage.getItem('gh_token') || '').trim()
   };
 }
@@ -306,6 +299,10 @@ function isConfigured() {
 async function init() {
   if (localStorage.getItem(AUTH_KEY) !== SITE_PASSWORD) return;
   document.getElementById('passwordGate').style.display = 'none';
+  if (!localStorage.getItem('gh_token')) {
+    document.getElementById('setupCard').classList.remove('hidden');
+    return;
+  }
   // Set today's date
   const t = new Date();
   document.getElementById('meetingDate').value =
@@ -389,25 +386,18 @@ async function testConnection() {
 }
 
 function saveConfig() {
-  const owner = document.getElementById('cfgOwner').value.trim();
-  const repo  = document.getElementById('cfgRepo').value.trim();
   const token = document.getElementById('cfgToken').value.trim();
-  if (!owner || !repo || !token) { showToast('Fill in all three fields.', 'error'); return; }
-  localStorage.setItem('gh_owner', owner);
-  localStorage.setItem('gh_repo', repo);
+  if (!token) { showToast('Please enter your token.', 'error'); return; }
   localStorage.setItem('gh_token', token);
   document.getElementById('setupCard').classList.add('hidden');
-  showToast('Settings saved.', 'success');
+  showToast('Token saved.', 'success');
   loadData().then(populateLeads);
 }
 
 function toggleSetup() {
   const el = document.getElementById('setupCard');
   if (!el.classList.contains('hidden')) { el.classList.add('hidden'); return; }
-  const c = cfg();
-  document.getElementById('cfgOwner').value = c.owner;
-  document.getElementById('cfgRepo').value  = c.repo;
-  document.getElementById('cfgToken').value = c.token;
+  document.getElementById('cfgToken').value = localStorage.getItem('gh_token') || '';
   el.classList.remove('hidden');
 }
 
