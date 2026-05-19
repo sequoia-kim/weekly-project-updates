@@ -317,6 +317,15 @@ async function loadData() {
 
 async function saveData() {
   const c = cfg();
+  // Always fetch fresh SHA before writing to avoid mismatch errors
+  const readRes = await fetch(
+    `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
+    { headers: { 'Authorization': `token ${c.token}` } }
+  );
+  if (!readRes.ok) throw new Error('Could not read data.json (status ' + readRes.status + ')');
+  const fileInfo = await readRes.json();
+  fileSha = fileInfo.sha;
+
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
   const res = await fetch(
     `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
