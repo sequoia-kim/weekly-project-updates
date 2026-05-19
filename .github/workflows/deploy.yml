@@ -24,9 +24,9 @@ jobs:
 
       - name: Inject secrets
         run: |
-          sed -i "s|__FIREBASE_URL__|${{ secrets.FIREBASE_URL }}|g" index.html entry.html
-          sed -i "s|__FIREBASE_API_KEY__|${{ secrets.FIREBASE_API_KEY }}|g" index.html entry.html
-          sed -i "s|__SITE_PASSWORD__|${{ secrets.SITE_PASSWORD }}|g" index.html entry.html
+          sed -i "s|__FIREBASE_URL__|${{ secrets.FIREBASE_URL }}|g" index.html entry.html team.html
+          sed -i "s|__FIREBASE_API_KEY__|${{ secrets.FIREBASE_API_KEY }}|g" index.html entry.html team.html
+          sed -i "s|__SITE_PASSWORD__|${{ secrets.SITE_PASSWORD }}|g" index.html entry.html team.html
 
       - uses: actions/configure-pages@v4
 
