@@ -324,8 +324,14 @@ async function loadData() {
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
     appData = await res.json();
+    localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
   } catch(e) {
-    showToast('Error loading data: ' + e.message, 'error');
+    const cached = localStorage.getItem('wpu_data_cache');
+    if (cached) {
+      appData = JSON.parse(cached);
+    } else {
+      showToast('Error loading data: ' + e.message, 'error');
+    }
   }
   showLoading(false);
 }
@@ -356,6 +362,7 @@ async function saveData() {
   }
   const result = await res.json();
   fileSha = result.content.sha;
+  localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
 }
 
 async function testConnection() {
