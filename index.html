@@ -84,6 +84,16 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 .loading-overlay.hidden{display:none}
 .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.stream-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;display:inline-block}
+.stream-research{background:#ede9fe;color:#7c3aed}
+.stream-policy{background:#dbeafe;color:#1d4ed8}
+.stream-public-engagement{background:#dcfce7;color:#15803d}
+.stream-ongoing{background:#fef3c7;color:#b45309}
+.stream-internal{background:#f1f5f9;color:#475569}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .15s;color:#475569}
+.filter-btn:hover{border-color:#6366f1;color:#6366f1}
+.filter-btn.active{background:#6366f1;color:#fff;border-color:#6366f1}
 .hidden{display:none!important}
 .text-muted{color:#94a3b8;font-size:13px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
@@ -148,6 +158,14 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
   </div>
 
   <div class="section-heading">All Projects</div>
+  <div class="filter-bar" id="streamFilters">
+    <button class="filter-btn active" onclick="filterStream(this, '')" >All</button>
+    <button class="filter-btn" onclick="filterStream(this, 'Research')">Research</button>
+    <button class="filter-btn" onclick="filterStream(this, 'Policy')">Policy</button>
+    <button class="filter-btn" onclick="filterStream(this, 'Public Engagement')">Public Engagement</button>
+    <button class="filter-btn" onclick="filterStream(this, 'Ongoing')">Ongoing</button>
+    <button class="filter-btn" onclick="filterStream(this, 'Internal')">Internal</button>
+  </div>
   <div class="project-grid" id="projectGrid"></div>
 
   <div class="section-heading">Weekly Responses</div>
@@ -181,6 +199,7 @@ function checkPassword() {
 }
 
 let appData = { projects: [], meetings: [] };
+let activeStream = '';
 
 function getConfig() {
   const params = new URLSearchParams(window.location.search);
@@ -271,17 +290,20 @@ function loadDashboard(selectedWeek) {
 
   // Project grid
   const grid = document.getElementById('projectGrid');
-  if (!appData.projects.length) {
-    grid.innerHTML = '<p class="text-muted">No projects yet.</p>';
+  const visibleProjects = activeStream
+    ? appData.projects.filter(p => p.stream === activeStream)
+    : appData.projects;
+  if (!visibleProjects.length) {
+    grid.innerHTML = '<p class="text-muted">No projects in this stream.</p>';
   } else {
-    grid.innerHTML = appData.projects.map(p => {
+    grid.innerHTML = visibleProjects.map(p => {
       const cls = statusClass(p.generalStatus);
       const pill = statusPill(p.generalStatus);
       const latest = latestByProject[p.id];
       const overdue = p.originalDeadline && p.projectedDeadline && p.projectedDeadline > p.originalDeadline;
       return `<div class="proj-card ${cls}" onclick="openHistory('${esc(p.id)}','${esc(p.name)}')">
         <div class="proj-card-name">${esc(p.name)}</div>
-        <div class="proj-card-lead">${esc(p.lead)}</div>
+        <div class="proj-card-lead">${esc(p.lead)}${p.stream ? ` <span class="stream-badge stream-${p.stream.toLowerCase().replace(/\s+/g,'-')}">${esc(p.stream)}</span>` : ''}</div>
         <div class="proj-card-row"><span class="proj-card-label">Status</span><span class="status-pill ${pill}">${esc(p.generalStatus||'On Track')}</span></div>
         ${p.currentStage ? `<div class="proj-card-row"><span class="proj-card-label">Stage</span><span class="proj-card-value">${esc(p.currentStage)}${p.stageDate?' · '+esc(p.stageDate):''}</span></div>` : ''}
         ${p.originalDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Deadline</span><span class="proj-card-value">${esc(p.originalDeadline)}</span></div>` : ''}
@@ -362,6 +384,14 @@ function openHistory(projectId, projectName) {
 function closeHistory() {
   document.getElementById('slideover').classList.remove('open');
   document.getElementById('slideoverBackdrop').classList.remove('open');
+}
+
+function filterStream(btn, stream) {
+  activeStream = stream;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const week = document.getElementById('weekSelect').value;
+  loadDashboard(week);
 }
 
 function statusClass(s) {
