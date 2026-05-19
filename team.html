@@ -21,40 +21,69 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 .filter-btn:hover{border-color:#6366f1;color:#6366f1}
 .filter-btn.active{background:#6366f1;border-color:#6366f1;color:#fff}
 
-.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.view-toggle{display:flex;border:1px solid #e2e8f0;border-radius:7px;overflow:hidden}
+.view-btn{padding:6px 14px;border:none;background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:#64748b;transition:all .15s}
+.view-btn:hover{background:#f1f5f9}
+.view-btn.active{background:#6366f1;color:#fff}
+.view-btn+.view-btn{border-left:1px solid #e2e8f0}
 
+/* ── Card view ── */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .proj-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;border-left:4px solid #e2e8f0}
 .proj-card.on-track{border-left-color:#22c55e}
 .proj-card.at-risk{border-left-color:#f59e0b}
 .proj-card.delayed{border-left-color:#ef4444}
 .proj-card.complete{border-left-color:#3b82f6}
 .proj-card.on-hold{border-left-color:#94a3b8}
-
 .proj-name{font-size:15px;font-weight:600;margin-bottom:2px}
 .proj-lead{font-size:12px;color:#94a3b8;margin-bottom:10px}
-
 .stream-pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;margin-bottom:10px}
 .stream-Research{background:#ede9fe;color:#7c3aed}
 .stream-Policy{background:#dbeafe;color:#1d4ed8}
 .stream-Public{background:#dcfce7;color:#15803d}
 .stream-Ongoing{background:#fef3c7;color:#b45309}
 .stream-Internal{background:#f1f5f9;color:#475569}
-
 .status-pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;margin-bottom:12px}
 .pill-on-track{background:#dcfce7;color:#15803d}
 .pill-at-risk{background:#fef3c7;color:#b45309}
 .pill-delayed{background:#fee2e2;color:#b91c1c}
 .pill-complete{background:#dbeafe;color:#1d4ed8}
 .pill-on-hold{background:#f1f5f9;color:#64748b}
-
 .info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .info-label{font-size:12px;color:#94a3b8}
 .info-value{font-size:13px;font-weight:500;text-align:right}
 .info-value.overdue{color:#ef4444;font-weight:600}
 
-.empty{text-align:center;color:#94a3b8;padding:60px 20px;font-size:14px}
+/* ── Calendar view ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav h2{font-size:17px;font-weight:700}
+.cal-nav-btn{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:6px 14px;font-size:14px;cursor:pointer;color:#475569}
+.cal-nav-btn:hover{background:#f1f5f9}
+.cal-grid{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #e2e8f0}
+.cal-weekday{padding:9px 0;text-align:center;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-cell{min-height:100px;padding:8px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;vertical-align:top}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell.other-month .cal-day-num{color:#cbd5e1}
+.cal-cell.today{background:#fafafe}
+.cal-cell.today .cal-day-num{background:#6366f1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-day-num{font-size:13px;font-weight:500;color:#475569;margin-bottom:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-chip{font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
+.cal-chip.on-track{background:#dcfce7;color:#15803d}
+.cal-chip.at-risk{background:#fef3c7;color:#b45309}
+.cal-chip.delayed{background:#fee2e2;color:#b91c1c}
+.cal-chip.complete{background:#dbeafe;color:#1d4ed8}
+.cal-chip.on-hold{background:#f1f5f9;color:#64748b}
+.cal-chip[title]:hover{opacity:.8}
+.no-date-section{margin-top:20px}
+.no-date-label{font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.no-date-chips{display:flex;flex-wrap:wrap;gap:6px}
+.no-date-chip{font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid #e2e8f0;background:#fff;color:#64748b}
 
+.empty{text-align:center;color:#94a3b8;padding:60px 20px;font-size:14px}
 .loading{text-align:center;color:#94a3b8;padding:60px 20px;font-size:14px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -80,7 +109,11 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
       <button class="filter-btn active" data-stream="">All</button>
     </div>
     <div class="toolbar-right">
-      <span class="sort-label">Sort by</span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewCards" onclick="setView('cards')">Cards</button>
+        <button class="view-btn" id="viewCal" onclick="setView('calendar')">Calendar</button>
+      </div>
+      <span class="sort-label" id="sortLabel">Sort by</span>
       <select class="sort-select" id="sortSelect" onchange="render()">
         <option value="name">Name</option>
         <option value="deadline">Projected completion date</option>
@@ -89,8 +122,33 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
     </div>
   </div>
 
-  <div class="project-grid" id="grid">
-    <div class="loading">Loading projects…</div>
+  <!-- Cards view -->
+  <div id="cardsView">
+    <div class="project-grid" id="grid">
+      <div class="loading">Loading projects…</div>
+    </div>
+  </div>
+
+  <!-- Calendar view -->
+  <div id="calView" class="hidden">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8592; Prev</button>
+      <h2 id="calMonthLabel"></h2>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">Next &#8594;</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-weekdays">
+        <div class="cal-weekday">Sun</div><div class="cal-weekday">Mon</div>
+        <div class="cal-weekday">Tue</div><div class="cal-weekday">Wed</div>
+        <div class="cal-weekday">Thu</div><div class="cal-weekday">Fri</div>
+        <div class="cal-weekday">Sat</div>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+    <div class="no-date-section" id="noDateSection" style="display:none">
+      <div class="no-date-label">No completion date set</div>
+      <div class="no-date-chips" id="noDateChips"></div>
+    </div>
   </div>
 </div>
 
@@ -102,6 +160,9 @@ const AUTH_KEY = 'wpu_auth';
 
 let projects = [];
 let activeStream = '';
+let currentView = 'cards';
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
 let _authToken = null;
 
 function checkAuth() {
@@ -172,9 +233,22 @@ function buildFilters() {
   });
 }
 
-function statusClass(s) {
-  return (s || '').toLowerCase().replace(/\s+/g, '-');
+function setView(v) {
+  currentView = v;
+  document.getElementById('viewCards').classList.toggle('active', v === 'cards');
+  document.getElementById('viewCal').classList.toggle('active', v === 'calendar');
+  document.getElementById('cardsView').classList.toggle('hidden', v !== 'cards');
+  document.getElementById('calView').classList.toggle('hidden', v !== 'calendar');
+  document.getElementById('sortLabel').classList.toggle('hidden', v !== 'cards');
+  document.getElementById('sortSelect').classList.toggle('hidden', v !== 'cards');
+  render();
 }
+
+function filteredProjects() {
+  return activeStream ? projects.filter(p => p.stream === activeStream) : [...projects];
+}
+
+function statusClass(s) { return (s || '').toLowerCase().replace(/\s+/g, '-'); }
 
 function pillClass(s) {
   const map = { 'On Track': 'pill-on-track', 'At Risk': 'pill-at-risk',
@@ -194,9 +268,13 @@ function isOverdue(d) {
 }
 
 function render() {
-  const sort = document.getElementById('sortSelect').value;
-  let list = activeStream ? projects.filter(p => p.stream === activeStream) : [...projects];
+  if (currentView === 'calendar') renderCalendar();
+  else renderCards();
+}
 
+function renderCards() {
+  const sort = document.getElementById('sortSelect').value;
+  let list = filteredProjects();
   if (sort === 'deadline') {
     list.sort((a, b) => {
       if (!a.projectedDeadline && !b.projectedDeadline) return 0;
@@ -210,35 +288,91 @@ function render() {
   } else {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
-
-  if (!list.length) {
-    document.getElementById('grid').innerHTML = '<div class="empty">No projects found.</div>';
-    return;
-  }
-
+  if (!list.length) { document.getElementById('grid').innerHTML = '<div class="empty">No projects found.</div>'; return; }
   document.getElementById('grid').innerHTML = list.map(p => {
     const streamKey = (p.stream || '').split(' ')[0];
     const overdue = isOverdue(p.projectedDeadline);
-    return `
-    <div class="proj-card ${statusClass(p.generalStatus)}">
-      <div class="proj-name">${p.name || 'Untitled'}</div>
-      <div class="proj-lead">${p.lead || ''}</div>
-      ${p.stream ? `<span class="stream-pill stream-${streamKey}">${p.stream}</span>` : ''}
-      <span class="status-pill ${pillClass(p.generalStatus)}">${p.generalStatus || 'Unknown'}</span>
-      <div class="info-row">
-        <span class="info-label">Current stage</span>
-        <span class="info-value">${p.currentStage || '—'}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Stage date</span>
-        <span class="info-value">${formatDate(p.stageDate)}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Projected completion date</span>
-        <span class="info-value ${overdue ? 'overdue' : ''}">${formatDate(p.projectedDeadline)}${overdue ? ' ⚠' : ''}</span>
-      </div>
+    return `<div class="proj-card ${statusClass(p.generalStatus)}">
+      <div class="proj-name">${esc(p.name || 'Untitled')}</div>
+      <div class="proj-lead">${esc(p.lead || '')}</div>
+      ${p.stream ? `<span class="stream-pill stream-${streamKey}">${esc(p.stream)}</span>` : ''}
+      <span class="status-pill ${pillClass(p.generalStatus)}">${esc(p.generalStatus || 'Unknown')}</span>
+      <div class="info-row"><span class="info-label">Current stage</span><span class="info-value">${esc(p.currentStage || '—')}</span></div>
+      <div class="info-row"><span class="info-label">Stage date</span><span class="info-value">${formatDate(p.stageDate)}</span></div>
+      <div class="info-row"><span class="info-label">Projected completion date</span><span class="info-value ${overdue ? 'overdue' : ''}">${formatDate(p.projectedDeadline)}${overdue ? ' ⚠' : ''}</span></div>
     </div>`;
   }).join('');
+}
+
+function renderCalendar() {
+  const list = filteredProjects();
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+
+  document.getElementById('calMonthLabel').textContent =
+    new Date(calYear, calMonth, 1).toLocaleDateString('en-CA', { month: 'long', year: 'numeric' });
+
+  // Build a map: date string → [projects]
+  const byDate = {};
+  const noDate = [];
+  list.forEach(p => {
+    if (p.projectedDeadline) {
+      (byDate[p.projectedDeadline] = byDate[p.projectedDeadline] || []).push(p);
+    } else {
+      noDate.push(p);
+    }
+  });
+
+  // Calendar days
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  let cells = '';
+  // Leading cells from previous month
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells += `<div class="cal-cell other-month"><div class="cal-day-num">${daysInPrev - i}</div></div>`;
+  }
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const dayProjects = byDate[dateStr] || [];
+    const chips = dayProjects.map(p =>
+      `<div class="cal-chip ${statusClass(p.generalStatus)}" title="${esc(p.name)} — ${esc(p.generalStatus)}">${esc(p.name)}</div>`
+    ).join('');
+    cells += `<div class="cal-cell${isToday ? ' today' : ''}"><div class="cal-day-num">${d}</div>${chips}</div>`;
+  }
+  // Trailing cells
+  const totalCells = firstDay + daysInMonth;
+  const trailing = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 1; i <= trailing; i++) {
+    cells += `<div class="cal-cell other-month"><div class="cal-day-num">${i}</div></div>`;
+  }
+
+  document.getElementById('calDays').innerHTML = cells;
+
+  // No-date section
+  const noDateSection = document.getElementById('noDateSection');
+  if (noDate.length) {
+    noDateSection.style.display = '';
+    document.getElementById('noDateChips').innerHTML = noDate.map(p =>
+      `<span class="no-date-chip">${esc(p.name)}</span>`
+    ).join('');
+  } else {
+    noDateSection.style.display = 'none';
+  }
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 checkAuth();
