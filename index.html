@@ -278,7 +278,24 @@ body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
 <div class="app-header">
   <h1>Project Dashboard</h1>
   <span class="mode-badge">Live</span>
+  <button class="btn btn-primary btn-sm" onclick="openSummary()">&#9881; Weekly Summary</button>
   <button class="btn btn-secondary btn-sm" onclick="loadDashboard(document.getElementById('weekSelect').value)">&#8635; Refresh</button>
+</div>
+
+<!-- Summary modal -->
+<div id="summaryBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:400;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeSummary()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.18)">
+    <div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0">
+      <h3 style="font-size:16px;font-weight:700;color:#0f2d5e" id="summaryTitle">Weekly Summary</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="copySummary()">Copy</button>
+        <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;padding:4px" onclick="closeSummary()">×</button>
+      </div>
+    </div>
+    <div style="padding:24px">
+      <pre id="summaryText" style="font-family:'Nunito',system-ui,sans-serif;font-size:14px;line-height:1.7;white-space:pre-wrap;color:#1e293b;margin:0"></pre>
+    </div>
+  </div>
 </div>
 
 <div class="dash-container">
@@ -530,6 +547,90 @@ function openHistory(projectId, projectName) {
 function closeHistory() {
   document.getElementById('slideover').classList.remove('open');
   document.getElementById('slideoverBackdrop').classList.remove('open');
+}
+
+function openSummary() {
+  const week = document.getElementById('weekSelect').value;
+  const meetings = appData.meetings.filter(m => m.week === week);
+  const projects = appData.projects;
+
+  if (!meetings.length) {
+    document.getElementById('summaryText').textContent = 'No check-ins recorded for this week yet.';
+    document.getElementById('summaryTitle').textContent = 'Weekly Summary';
+    document.getElementById('summaryBackdrop').style.display = 'flex';
+    return;
+  }
+
+  const dateRange = weekToDateRange(week);
+  const total = meetings.length;
+  const avgCap = Math.round(meetings.reduce((s, m) => s + (m.capacity || 0), 0) / total);
+  const lowCap = meetings.filter(m => m.capacity < 60);
+  const atRisk = projects.filter(p => p.generalStatus === 'At Risk' || p.generalStatus === 'Delayed');
+  const flags = meetings.filter(m => m.flags && m.flags.trim());
+
+  const section = (title, items) => items.length
+    ? `${title}\n${items.map(s => `  • ${s}`).join('\n')}\n`
+    : '';
+
+  const field = (label, meetings, key) => {
+    const items = meetings.filter(m => m[key] && m[key].trim())
+      .map(m => `${m.projectName}: ${m[key].trim()}`);
+    return section(label, items);
+  };
+
+  let text = `WEEKLY CHECK-IN SUMMARY — ${dateRange}\n`;
+  text += '─'.repeat(44) + '\n\n';
+
+  text += `CHECK-INS COMPLETED: ${total}\n`;
+  text += `AVERAGE CAPACITY: ${avgCap}%\n`;
+  if (lowCap.length) {
+    text += `LOW CAPACITY (<60%): ${lowCap.map(m => `${m.projectName} (${m.capacity}%)`).join(', ')}\n`;
+  }
+  text += '\n';
+
+  if (atRisk.length) {
+    text += section('⚠ PROJECTS AT RISK / DELAYED', atRisk.map(p => `${p.name} — ${p.generalStatus}`));
+    text += '\n';
+  }
+
+  if (flags.length) {
+    text += section('🚩 FLAGS RAISED', flags.map(m => `${m.projectName}: ${m.flags.trim()}`));
+    text += '\n';
+  }
+
+  text += field('CHALLENGES', meetings, 'challenges');
+  if (meetings.some(m => m.challenges && m.challenges.trim())) text += '\n';
+
+  text += field('NEEDS & REQUESTS', meetings, 'needs');
+  if (meetings.some(m => m.needs && m.needs.trim())) text += '\n';
+
+  text += field('DELAYS', meetings, 'delays');
+  if (meetings.some(m => m.delays && m.delays.trim())) text += '\n';
+
+  text += field('ENVIRONMENT CHANGES', meetings, 'envChanges');
+  if (meetings.some(m => m.envChanges && m.envChanges.trim())) text += '\n';
+
+  text += field('VIBE CHECK', meetings, 'vibeCheck');
+
+  text += '\n' + '─'.repeat(44) + '\n';
+  text += `Generated ${new Date().toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+
+  document.getElementById('summaryTitle').textContent = `Weekly Summary — ${dateRange}`;
+  document.getElementById('summaryText').textContent = text.trim();
+  document.getElementById('summaryBackdrop').style.display = 'flex';
+}
+
+function closeSummary() {
+  document.getElementById('summaryBackdrop').style.display = 'none';
+}
+
+function copySummary() {
+  const text = document.getElementById('summaryText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
 }
 
 function filterStream(btn, stream) {
