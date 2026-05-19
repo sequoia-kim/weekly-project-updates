@@ -251,10 +251,10 @@ function loadDashboard(selectedWeek) {
   // Week selector
   const wsel = document.getElementById('weekSelect');
   wsel.innerHTML = weeks.map(w =>
-    `<option value="${w}" ${w===selectedWeek?'selected':''}>${w}${w===currentWeek?' (current)':''}</option>`
+    `<option value="${w}" ${w===selectedWeek?'selected':''}>${weekToDateRange(w)}${w===currentWeek?' (current)':''}</option>`
   ).join('');
 
-  document.getElementById('dashWeekLabel').textContent = 'Week: ' + selectedWeek;
+  document.getElementById('dashWeekLabel').textContent = 'Week of ' + weekToDateRange(selectedWeek);
 
   const weekMeetings = appData.meetings.filter(m => m.week === selectedWeek);
 
@@ -398,6 +398,20 @@ function statusClass(s) {
 function statusPill(s) {
   return { 'On Track':'pill-on-track','At Risk':'pill-at-risk','Delayed':'pill-delayed','Complete':'pill-complete','On Hold':'pill-on-hold' }[s] || 'pill-on-track';
 }
+function weekToDateRange(weekStr) {
+  const [year, week] = weekStr.split('-W').map(Number);
+  const jan4 = new Date(year, 0, 4);
+  const monday = new Date(jan4);
+  monday.setDate(jan4.getDate() - ((jan4.getDay() || 7) - 1) + (week - 1) * 7);
+  const friday = new Date(monday);
+  friday.setDate(monday.getDate() + 4);
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (monday.getMonth() === friday.getMonth()) {
+    return `${fmt(monday).replace(',','')}–${friday.getDate()}`;
+  }
+  return `${fmt(monday)} – ${fmt(friday)}`;
+}
+
 function isoWeek(date) {
   const d = new Date(date); d.setDate(d.getDate() + 4 - (d.getDay()||7));
   const y = d.getFullYear(), start = new Date(y,0,1);
