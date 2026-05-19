@@ -194,6 +194,43 @@ select option{background:#d6e8ff;color:#0f2d5e}
 .stream-Research,.stream-research,.stream-badge.stream-research{background:rgba(167,139,250,.18)!important;color:#6d28d9!important}
 .setup-banner{background:rgba(254,249,195,.6)!important;border-color:rgba(253,224,71,.5)!important;color:#854d0e!important}
 .toast{background:rgba(15,45,94,.88)!important;backdrop-filter:blur(12px)}
+
+/* === Clean/Static Mode === */
+body.clean-mode{background:#eef4ff!important}
+body.clean-mode #bubbles{display:none!important}
+body.clean-mode .app-header{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important}
+body.clean-mode .card,body.clean-mode .proj-card,body.clean-mode .summary-card,body.clean-mode .manage-panel,body.clean-mode .entries-panel,body.clean-mode .status-section,body.clean-mode .qa-accordion,body.clean-mode .cal-grid,body.clean-mode .history-entry,body.clean-mode .flag-item,body.clean-mode .modal{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important;transition:box-shadow .15s}
+body.clean-mode .card:hover,body.clean-mode .proj-card:hover,body.clean-mode .summary-card:hover{transform:none!important;background:#fff!important;box-shadow:0 4px 12px rgba(0,0,0,.08)!important}
+body.clean-mode .flags-section{background:#fff8f0!important;border-color:#fed7aa!important}
+body.clean-mode .btn-primary{background:#3b82f6!important;backdrop-filter:none!important;box-shadow:none!important;border:none!important}
+body.clean-mode .btn-primary:hover{background:#2563eb!important;transform:none!important;box-shadow:none!important}
+body.clean-mode .btn-secondary{background:#f1f5f9!important;border-color:#e2e8f0!important;color:#475569!important;backdrop-filter:none!important}
+body.clean-mode .btn-secondary:hover{background:#e2e8f0!important}
+body.clean-mode .filter-btn{background:#fff!important;border-color:#e2e8f0!important;color:#475569!important;backdrop-filter:none!important}
+body.clean-mode .filter-btn.active,body.clean-mode .view-btn.active{background:#3b82f6!important;border-color:#3b82f6!important;box-shadow:none!important}
+body.clean-mode .view-toggle{background:#f1f5f9!important;border-color:#e2e8f0!important;backdrop-filter:none!important}
+body.clean-mode .view-btn{background:transparent!important}
+body.clean-mode .form-group select,body.clean-mode .form-group input,body.clean-mode .form-group textarea,body.clean-mode .week-select,body.clean-mode .sort-select{background:#fff!important;border-color:#cbd5e1!important;backdrop-filter:none!important}
+body.clean-mode #passwordGate{background:#eef4ff!important;backdrop-filter:none!important}
+body.clean-mode #passwordGate>div{background:#fff!important;backdrop-filter:none!important;border-color:#e2e8f0!important;box-shadow:0 4px 24px rgba(0,0,0,.08)!important}
+body.clean-mode #passwordGate button{background:#3b82f6!important;box-shadow:none!important;border:none!important}
+body.clean-mode .qa-item-header{background:#f8fafc!important;backdrop-filter:none!important}
+body.clean-mode .qa-item-header:hover{background:#f1f5f9!important}
+body.clean-mode .slideover{background:#fff!important;backdrop-filter:none!important}
+body.clean-mode .slideover-header{background:#fff!important;border-color:#e2e8f0!important}
+body.clean-mode .modal{background:#fff!important;backdrop-filter:none!important}
+body.clean-mode .modal-header{background:#fff!important;border-color:#e2e8f0!important}
+body.clean-mode .manage-panel-header,body.clean-mode .entries-panel-header{background:#f8fafc!important;border-color:#e2e8f0!important}
+body.clean-mode .cal-nav-btn{background:#fff!important;border-color:#e2e8f0!important;backdrop-filter:none!important}
+body.clean-mode .loading-overlay{background:rgba(238,244,255,.85)!important;backdrop-filter:none!important}
+body.clean-mode .toast{backdrop-filter:none!important}
+body.clean-mode .no-date-chip{background:#fff!important;border-color:#e2e8f0!important}
+
+/* Toggle button */
+#themeToggleBtn{position:fixed;bottom:24px;right:24px;z-index:500;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:24px;border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.38);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#1d4ed8;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(100,150,255,.18),inset 0 1px 0 rgba(255,255,255,.8);transition:all .2s;font-family:inherit}
+#themeToggleBtn:hover{background:rgba(255,255,255,.55);box-shadow:0 6px 24px rgba(100,150,255,.25),inset 0 1px 0 rgba(255,255,255,.9)}
+body.clean-mode #themeToggleBtn{background:#fff;border-color:#e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.08);backdrop-filter:none;color:#3b82f6}
+body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
 </style>
 </head>
 <body>
@@ -504,6 +541,28 @@ loadData();
     c.appendChild(b);
   }
 })();
+
+// theme toggle
+(function(){
+  var CLEAN='clean-mode',KEY='wpu_theme';
+  function apply(clean){
+    document.body.classList.toggle(CLEAN,clean);
+    document.getElementById('themeToggleIcon').textContent=clean?'✦':'◈';
+    document.getElementById('themeToggleLabel').textContent=clean?'Glass view':'Clean view';
+  }
+  window.toggleTheme=function(){
+    var next=!document.body.classList.contains(CLEAN);
+    localStorage.setItem(KEY,next?'clean':'glass');
+    apply(next);
+  };
+  apply(localStorage.getItem(KEY)==='clean');
+})();
 </script>
+
+<button id="themeToggleBtn" onclick="toggleTheme()">
+  <span id="themeToggleIcon">✦</span>
+  <span id="themeToggleLabel">Clean view</span>
+</button>
+
 </body>
 </html>
