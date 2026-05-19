@@ -83,7 +83,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
       <span class="sort-label">Sort by</span>
       <select class="sort-select" id="sortSelect" onchange="render()">
         <option value="name">Name</option>
-        <option value="deadline">Deadline</option>
+        <option value="deadline">Projected completion date</option>
         <option value="status">Status</option>
       </select>
     </div>
@@ -234,7 +234,7 @@ function render() {
         <span class="info-value">${formatDate(p.stageDate)}</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Deadline</span>
+        <span class="info-label">Projected completion date</span>
         <span class="info-value ${overdue ? 'overdue' : ''}">${formatDate(p.projectedDeadline)}${overdue ? ' ⚠' : ''}</span>
       </div>
     </div>`;

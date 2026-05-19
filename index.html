@@ -304,8 +304,8 @@ function loadDashboard(selectedWeek) {
         <div class="proj-card-lead">${esc(p.lead)}${p.stream ? ` <span class="stream-badge stream-${p.stream.toLowerCase().replace(/\s+/g,'-')}">${esc(p.stream)}</span>` : ''}</div>
         <div class="proj-card-row"><span class="proj-card-label">Status</span><span class="status-pill ${pill}">${esc(p.generalStatus||'On Track')}</span></div>
         ${p.currentStage ? `<div class="proj-card-row"><span class="proj-card-label">Stage</span><span class="proj-card-value">${esc(p.currentStage)}${p.stageDate?' · '+esc(p.stageDate):''}</span></div>` : ''}
-        ${p.originalDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Deadline</span><span class="proj-card-value">${esc(p.originalDeadline)}</span></div>` : ''}
-        ${p.projectedDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Projected</span><span class="proj-card-value${overdue?' overdue':''}">${esc(p.projectedDeadline)}</span></div>` : ''}
+        ${p.originalDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Projected completion date</span><span class="proj-card-value">${esc(p.originalDeadline)}</span></div>` : ''}
+        ${p.projectedDeadline ? `<div class="proj-card-row"><span class="proj-card-label">Projected completion date</span><span class="proj-card-value${overdue?' overdue':''}">${esc(p.projectedDeadline)}</span></div>` : ''}
         ${latest ? `<div class="cap-bar"><div class="cap-bar-fill" style="width:${latest.capacity}%"></div></div>` : ''}
       </div>`;
     }).join('');
