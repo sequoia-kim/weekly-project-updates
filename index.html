@@ -602,6 +602,20 @@ init();
   };
   apply(localStorage.getItem(KEY)==='clean');
 })();
+
+// bubble pause on click
+(function(){
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#themeToggleBtn')||e.target.closest('#passwordGate')) return;
+    var b=document.getElementById('bubbles');
+    if(!b) return;
+    var paused=b.style.getPropertyValue('--paused')==='1';
+    b.style.setProperty('--paused',paused?'0':'1');
+    b.querySelectorAll('.bubble').forEach(function(el){
+      el.style.animationPlayState=paused?'running':'paused';
+    });
+  });
+})();
 </script>
 
 <button id="themeToggleBtn" onclick="toggleTheme()">
