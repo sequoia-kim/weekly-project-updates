@@ -114,7 +114,11 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
       <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx">
       <small style="color:#94a3b8;font-size:12px;margin-top:4px;display:block">Needs repo scope. Never shared — stays in your browser only.</small>
     </div>
-    <button class="btn btn-primary" onclick="saveConfig()">Save Settings</button>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveConfig()">Save Settings</button>
+      <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+      <span id="testResult" style="font-size:13px"></span>
+    </div>
   </div>
 
   <!-- Manage projects panel -->
@@ -288,9 +292,9 @@ let fileSha = '';
 
 function cfg() {
   return {
-    owner: localStorage.getItem('gh_owner') || '',
-    repo:  localStorage.getItem('gh_repo')  || '',
-    token: localStorage.getItem('gh_token') || ''
+    owner: (localStorage.getItem('gh_owner') || '').trim(),
+    repo:  (localStorage.getItem('gh_repo')  || '').trim(),
+    token: (localStorage.getItem('gh_token') || '').trim()
   };
 }
 
@@ -359,6 +363,29 @@ async function saveData() {
   }
   const result = await res.json();
   fileSha = result.content.sha;
+}
+
+async function testConnection() {
+  const c = cfg();
+  const el = document.getElementById('testResult');
+  if (!c.owner || !c.repo || !c.token) {
+    el.style.color = '#ef4444'; el.textContent = '✗ Fill in all fields first'; return;
+  }
+  el.style.color = '#94a3b8'; el.textContent = 'Testing…';
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
+      { headers: { 'Authorization': `token ${c.token}` } }
+    );
+    if (res.ok) {
+      el.style.color = '#16a34a'; el.textContent = '✓ Connected successfully';
+    } else {
+      const err = await res.json();
+      el.style.color = '#ef4444'; el.textContent = '✗ ' + (err.message || 'HTTP ' + res.status);
+    }
+  } catch(e) {
+    el.style.color = '#ef4444'; el.textContent = '✗ ' + e.message;
+  }
 }
 
 function saveConfig() {
