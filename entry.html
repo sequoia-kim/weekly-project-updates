@@ -48,11 +48,14 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 .project-list-item:last-child{border-bottom:none}
 .project-list-item span{flex:1;font-size:14px}
 .project-list-item small{color:#94a3b8;font-size:12px}
-.add-project-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0}
-@media(max-width:600px){.add-project-row{grid-template-columns:1fr}}
-.setup-card{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:22px 24px;margin-bottom:16px}
-.setup-card .card-title{color:#b45309}
-.setup-card input{border-color:#fde68a}
+.add-project-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0}
+@media(max-width:700px){.add-project-row{grid-template-columns:1fr}}
+.stream-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
+.stream-research{background:#ede9fe;color:#7c3aed}
+.stream-policy{background:#dbeafe;color:#1d4ed8}
+.stream-public-engagement{background:#dcfce7;color:#15803d}
+.stream-ongoing{background:#fef3c7;color:#b45309}
+.stream-internal{background:#f1f5f9;color:#475569}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{background:#166534}
@@ -61,12 +64,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 .loading-overlay.hidden{display:none}
 .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.stream-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
-.stream-research{background:#ede9fe;color:#7c3aed}
-.stream-policy{background:#dbeafe;color:#1d4ed8}
-.stream-public-engagement{background:#dcfce7;color:#15803d}
-.stream-ongoing{background:#fef3c7;color:#b45309}
-.stream-internal{background:#f1f5f9;color:#475569}
 .hidden{display:none!important}
 .text-muted{color:#94a3b8;font-size:13px}
 </style>
@@ -83,6 +80,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
     <div id="pwError" style="color:#ef4444;font-size:13px;margin-top:10px;display:none">Incorrect password. Try again.</div>
   </div>
 </div>
+
 <div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
 <div id="toast" class="toast"></div>
 
@@ -90,26 +88,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
   <h1>Weekly Project Check-in</h1>
   <span class="mode-badge">Entry</span>
   <button class="btn btn-secondary btn-sm" onclick="toggleManage()">Manage Projects</button>
-  <button class="btn btn-secondary btn-sm" onclick="toggleSetup()">&#9881; Settings</button>
 </div>
 
 <div class="main-container">
-
-  <!-- Setup card -->
-  <div id="setupCard" class="setup-card hidden">
-    <div class="card-title">GitHub Settings</div>
-    <p style="font-size:13px;color:#78350f;margin-bottom:16px">Enter your GitHub Personal Access Token. Stored only in your browser.</p>
-    <div class="form-group">
-      <label>Personal Access Token</label>
-      <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx">
-      <small style="color:#94a3b8;font-size:12px;margin-top:4px;display:block">Needs repo scope. Never shared — stays in your browser only.</small>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="saveConfig()">Save Settings</button>
-      <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
-      <span id="testResult" style="font-size:13px"></span>
-    </div>
-  </div>
 
   <!-- Manage projects panel -->
   <div id="managePanel" class="manage-panel hidden">
@@ -169,10 +150,8 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
 
   <!-- Form -->
   <div id="formSection" class="hidden">
-
     <div class="card">
       <div class="card-title">Check-in Questions</div>
-
       <div class="form-group">
         <label>1. Out of 100%, how would you rate your capacity this week?</label>
         <div class="slider-wrap">
@@ -180,22 +159,18 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
           <div class="slider-val" id="capacityVal">70%</div>
         </div>
       </div>
-
       <div class="form-group">
         <label>2. Are you experiencing any challenges, roadblocks, or bottlenecks?</label>
         <textarea id="qChallenges" placeholder="Describe any challenges..."></textarea>
       </div>
-
       <div class="form-group">
         <label>3. Are you experiencing any delays, or do you foresee any delays?</label>
         <textarea id="qDelays" placeholder="Describe any delays or anticipated delays..."></textarea>
       </div>
-
       <div class="form-group">
         <label>4. Is there anything that you need?</label>
         <textarea id="qNeeds" placeholder="Resources, decisions, support..."></textarea>
       </div>
-
       <div class="form-group" style="margin-bottom:0">
         <label>5. Has anything changed in the external or internal environment relevant to the project or its release date?</label>
         <textarea id="qEnvChanges" placeholder="Any relevant changes..."></textarea>
@@ -211,7 +186,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
     </div>
 
     <div class="flags-card">
-      <div class="card-title">&#9888; Important Flags</div>
+      <div class="card-title">⚠ Important Flags</div>
       <div class="form-group" style="margin-bottom:0">
         <label style="color:#c2410c">Critical issues that need immediate attention</label>
         <textarea id="qFlags" placeholder="Flag anything that needs urgent follow-up..." style="min-height:70px"></textarea>
@@ -256,17 +231,19 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
     </div>
 
     <button class="btn btn-primary btn-full" id="saveBtn" onclick="saveMeeting()">Save Meeting Notes</button>
-
   </div>
 </div>
 
 <script>
+const FIREBASE_URL = '__FIREBASE_URL__';
 const SITE_PASSWORD = '__SITE_PASSWORD__';
 const AUTH_KEY = 'wpu_auth';
 
+let appData = { projects: [], meetings: [] };
+
+// ── Auth ─────────────────────────────────────────────────────
 function checkPassword() {
-  const input = document.getElementById('passwordInput').value;
-  if (input === SITE_PASSWORD) {
+  if (document.getElementById('passwordInput').value === SITE_PASSWORD) {
     localStorage.setItem(AUTH_KEY, SITE_PASSWORD);
     document.getElementById('passwordGate').style.display = 'none';
     init();
@@ -277,139 +254,54 @@ function checkPassword() {
   }
 }
 
-let appData = { projects: [], meetings: [] };
-let fileSha = '';
-
-const REPO_OWNER = 'sequoia-kim';
-const REPO_NAME  = 'weekly-project-updates';
-
-function cfg() {
-  return {
-    owner: REPO_OWNER,
-    repo:  REPO_NAME,
-    token: (localStorage.getItem('gh_token') || '').trim()
-  };
-}
-
-function isConfigured() {
-  const c = cfg();
-  return c.owner && c.repo && c.token;
-}
-
+// ── Init ─────────────────────────────────────────────────────
 async function init() {
   if (localStorage.getItem(AUTH_KEY) !== SITE_PASSWORD) return;
   document.getElementById('passwordGate').style.display = 'none';
-  if (!localStorage.getItem('gh_token')) {
-    document.getElementById('setupCard').classList.remove('hidden');
-    return;
-  }
-  // Set today's date
   const t = new Date();
   document.getElementById('meetingDate').value =
     t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
-
-  if (!isConfigured()) {
-    document.getElementById('setupCard').classList.remove('hidden');
-    return;
-  }
   await loadData();
   populateLeads();
 }
 
+// ── Data ─────────────────────────────────────────────────────
 async function loadData() {
   showLoading(true);
-  // Load instantly from local cache
-  const cached = localStorage.getItem('wpu_data_cache');
-  if (cached) appData = JSON.parse(cached);
-  showLoading(false);
-  // Sync from GitHub in the background (non-blocking)
   try {
-    const res = await fetch(
-      `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/data.json?t=` + Date.now()
-    );
-    if (res.ok) {
-      const remote = await res.json();
-      // Only update if remote has more data than local
-      if (remote.meetings.length >= appData.meetings.length) {
-        appData = remote;
-        localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
-        populateLeads();
-      }
+    const res = await fetch(FIREBASE_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data) {
+      appData = data;
+      localStorage.setItem('wpu_cache', JSON.stringify(appData));
     }
   } catch(e) {
-    // Silent fail — local data already loaded above
+    const cached = localStorage.getItem('wpu_cache');
+    if (cached) appData = JSON.parse(cached);
   }
+  showLoading(false);
 }
 
 async function saveData() {
-  // Always save locally first — data is never lost on reload
-  localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
-
-  // Sync to GitHub in background so dashboard updates
-  const token = (localStorage.getItem('gh_token') || '').trim();
-  if (!token) return;
+  localStorage.setItem('wpu_cache', JSON.stringify(appData));
   try {
-    const readRes = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data.json`,
-      { headers: { 'Authorization': `token ${token}` } }
-    );
-    if (!readRes.ok) throw new Error('read failed');
-    const fileInfo = await readRes.json();
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
-    const writeRes = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data.json`,
-      {
-        method: 'PUT',
-        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: 'Update check-in data', content, sha: fileInfo.sha, branch: 'main' })
-      }
-    );
-    if (!writeRes.ok) throw new Error('write failed');
-    showToast('Saved ✓', 'success');
-  } catch(e) {
-    showToast('Saved locally. Dashboard will sync when connection improves.', '');
-  }
-}
-
-async function testConnection() {
-  const c = cfg();
-  const el = document.getElementById('testResult');
-  if (!c.owner || !c.repo || !c.token) {
-    el.style.color = '#ef4444'; el.textContent = '✗ Fill in all fields first'; return;
-  }
-  el.style.color = '#94a3b8'; el.textContent = 'Testing…';
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`,
-      { headers: { 'Authorization': `token ${c.token}` } }
-    );
+    const res = await fetch(FIREBASE_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(appData)
+    });
     if (res.ok) {
-      el.style.color = '#16a34a'; el.textContent = '✓ Connected successfully';
+      showToast('Saved ✓', 'success');
     } else {
-      const err = await res.json();
-      el.style.color = '#ef4444'; el.textContent = '✗ ' + (err.message || 'HTTP ' + res.status);
+      throw new Error('HTTP ' + res.status);
     }
   } catch(e) {
-    el.style.color = '#ef4444'; el.textContent = '✗ ' + e.message;
+    showToast('Saved locally — will sync shortly.', '');
   }
 }
 
-function saveConfig() {
-  const token = document.getElementById('cfgToken').value.trim();
-  if (!token) { showToast('Please enter your token.', 'error'); return; }
-  localStorage.setItem('gh_token', token);
-  document.getElementById('setupCard').classList.add('hidden');
-  showToast('Token saved.', 'success');
-  loadData().then(populateLeads);
-}
-
-function toggleSetup() {
-  const el = document.getElementById('setupCard');
-  if (!el.classList.contains('hidden')) { el.classList.add('hidden'); return; }
-  document.getElementById('cfgToken').value = localStorage.getItem('gh_token') || '';
-  el.classList.remove('hidden');
-}
-
+// ── Leads & Projects ─────────────────────────────────────────
 function populateLeads() {
   const sel = document.getElementById('leadSelect');
   const leads = [...new Set(appData.projects.map(p => p.lead))].sort();
@@ -429,18 +321,17 @@ function filterProjects() {
   if (!lead) return;
   appData.projects.filter(p => p.lead === lead).forEach(p => {
     const o = document.createElement('option');
-    o.value = p.id;
-    o.textContent = p.name;
+    o.value = p.id; o.textContent = p.name;
     sel.appendChild(o);
   });
   sel.onchange = function() {
     if (!sel.value) { document.getElementById('formSection').classList.add('hidden'); return; }
     const p = appData.projects.find(x => x.id === sel.value);
     if (p) {
-      document.getElementById('statusGeneral').value    = p.generalStatus    || 'On Track';
-      document.getElementById('statusStage').value      = p.currentStage     || '';
-      document.getElementById('statusStageDate').value  = p.stageDate        || '';
-      document.getElementById('statusOrigDeadline').value = p.originalDeadline || '';
+      document.getElementById('statusGeneral').value      = p.generalStatus     || 'On Track';
+      document.getElementById('statusStage').value        = p.currentStage      || '';
+      document.getElementById('statusStageDate').value    = p.stageDate         || '';
+      document.getElementById('statusOrigDeadline').value = p.originalDeadline  || '';
       document.getElementById('statusProjDeadline').value = p.projectedDeadline || '';
     }
     document.getElementById('formSection').classList.remove('hidden');
@@ -448,47 +339,43 @@ function filterProjects() {
   };
 }
 
+// ── Save meeting ──────────────────────────────────────────────
 async function saveMeeting() {
   const projectId = document.getElementById('projectSelect').value;
   if (!projectId) { showToast('Select a project first.', 'error'); return; }
-
   const date = document.getElementById('meetingDate').value;
-  const meeting = {
-    id: 'M' + Date.now(),
-    projectId,
-    date,
-    week: isoWeek(date),
-    projectName: appData.projects.find(p => p.id === projectId)?.name || '',
-    projectLead: appData.projects.find(p => p.id === projectId)?.lead || '',
-    capacity:    parseInt(document.getElementById('capacitySlider').value),
-    challenges:  document.getElementById('qChallenges').value.trim(),
-    delays:      document.getElementById('qDelays').value.trim(),
-    needs:       document.getElementById('qNeeds').value.trim(),
-    envChanges:  document.getElementById('qEnvChanges').value.trim(),
-    vibeCheck:   document.getElementById('qVibeCheck').value.trim(),
-    flags:       document.getElementById('qFlags').value.trim()
-  };
+  const proj = appData.projects.find(p => p.id === projectId);
 
-  // Update project status
+  appData.meetings.push({
+    id: 'M' + Date.now(), projectId, date, week: isoWeek(date),
+    projectName: proj?.name || '', projectLead: proj?.lead || '',
+    capacity:   parseInt(document.getElementById('capacitySlider').value),
+    challenges: document.getElementById('qChallenges').value.trim(),
+    delays:     document.getElementById('qDelays').value.trim(),
+    needs:      document.getElementById('qNeeds').value.trim(),
+    envChanges: document.getElementById('qEnvChanges').value.trim(),
+    vibeCheck:  document.getElementById('qVibeCheck').value.trim(),
+    flags:      document.getElementById('qFlags').value.trim()
+  });
+
   const projIdx = appData.projects.findIndex(p => p.id === projectId);
   if (projIdx > -1) {
-    appData.projects[projIdx].generalStatus    = document.getElementById('statusGeneral').value;
-    appData.projects[projIdx].currentStage     = document.getElementById('statusStage').value.trim();
-    appData.projects[projIdx].stageDate        = document.getElementById('statusStageDate').value;
-    appData.projects[projIdx].originalDeadline = document.getElementById('statusOrigDeadline').value;
-    appData.projects[projIdx].projectedDeadline= document.getElementById('statusProjDeadline').value;
-    appData.projects[projIdx].updatedAt        = date;
+    Object.assign(appData.projects[projIdx], {
+      generalStatus:    document.getElementById('statusGeneral').value,
+      currentStage:     document.getElementById('statusStage').value.trim(),
+      stageDate:        document.getElementById('statusStageDate').value,
+      originalDeadline: document.getElementById('statusOrigDeadline').value,
+      projectedDeadline:document.getElementById('statusProjDeadline').value,
+      updatedAt: date
+    });
   }
-
-  appData.meetings.push(meeting);
 
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = 'Saving…';
   showLoading(true);
   await saveData();
-  ['qChallenges','qDelays','qNeeds','qEnvChanges','qVibeCheck','qFlags'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
+  ['qChallenges','qDelays','qNeeds','qEnvChanges','qVibeCheck','qFlags']
+    .forEach(id => document.getElementById(id).value = '');
   document.getElementById('capacitySlider').value = 70;
   document.getElementById('capacityVal').textContent = '70%';
   btn.disabled = false; btn.textContent = 'Save Meeting Notes';
@@ -496,15 +383,11 @@ async function saveMeeting() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Manage projects
+// ── Manage projects ───────────────────────────────────────────
 function toggleManage() {
   const panel = document.getElementById('managePanel');
-  if (panel.classList.contains('hidden')) {
-    renderProjectList();
-    panel.classList.remove('hidden');
-  } else {
-    panel.classList.add('hidden');
-  }
+  if (panel.classList.contains('hidden')) { renderProjectList(); panel.classList.remove('hidden'); }
+  else panel.classList.add('hidden');
 }
 
 function renderProjectList() {
@@ -513,8 +396,7 @@ function renderProjectList() {
   const sorted = [...appData.projects].sort((a,b) => a.lead.localeCompare(b.lead) || a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(p =>
     `<div class="project-list-item">
-      <span>${esc(p.name)}</span>
-      <small>${esc(p.lead)}</small>
+      <span>${esc(p.name)}</span><small>${esc(p.lead)}</small>
       ${p.stream ? `<span class="stream-badge stream-${p.stream.toLowerCase().replace(/\s+/g,'-')}">${esc(p.stream)}</span>` : ''}
       <button class="btn btn-danger btn-sm" onclick="removeProject('${esc(p.id)}')">Remove</button>
     </div>`
@@ -526,47 +408,41 @@ async function addProject() {
   const lead   = document.getElementById('newProjectLead').value.trim();
   const stream = document.getElementById('newProjectStream').value;
   if (!name || !lead) { showToast('Enter both name and lead.', 'error'); return; }
-  const proj = { id: 'P' + Date.now(), name, lead, stream,
+  appData.projects.push({ id: 'P' + Date.now(), name, lead, stream,
     generalStatus: 'On Track', currentStage: '', stageDate: '',
-    originalDeadline: '', projectedDeadline: '', updatedAt: '' };
-  appData.projects.push(proj);
+    originalDeadline: '', projectedDeadline: '', updatedAt: '' });
   showLoading(true);
   await saveData();
   document.getElementById('newProjectName').value = '';
   document.getElementById('newProjectLead').value = '';
   document.getElementById('newProjectStream').value = '';
-  populateLeads();
-  renderProjectList();
+  populateLeads(); renderProjectList();
   showLoading(false);
 }
 
 async function removeProject(id) {
   if (!confirm('Remove this project? Meeting history remains.')) return;
-  const idx = appData.projects.findIndex(p => p.id === id);
-  const removed = appData.projects.splice(idx, 1);
+  appData.projects = appData.projects.filter(p => p.id !== id);
   showLoading(true);
   await saveData();
-  populateLeads();
-  renderProjectList();
+  populateLeads(); renderProjectList();
   document.getElementById('formSection').classList.add('hidden');
   showLoading(false);
 }
 
+// ── Utils ─────────────────────────────────────────────────────
 function isoWeek(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   const tmp = new Date(d); tmp.setDate(tmp.getDate() + 4 - (tmp.getDay()||7));
-  const y = tmp.getFullYear();
-  const start = new Date(y, 0, 1);
-  const wk = Math.ceil((((tmp - start) / 86400000) + 1) / 7);
-  return y + '-W' + String(wk).padStart(2,'0');
+  const y = tmp.getFullYear(), start = new Date(y,0,1);
+  return y + '-W' + String(Math.ceil((((tmp-start)/86400000)+1)/7)).padStart(2,'0');
 }
-
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function showToast(msg, type) {
   const el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'toast' + (type ? ' '+type : ''); el.classList.add('show');
+  el.textContent = msg; el.className = 'toast' + (type?' '+type:''); el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 3500);
 }
 function showLoading(show) {

@@ -198,46 +198,26 @@ function checkPassword() {
   }
 }
 
+const FIREBASE_URL = '__FIREBASE_URL__';
 let appData = { projects: [], meetings: [] };
 let activeStream = '';
-
-function getConfig() {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    owner: params.get('owner') || '',
-    repo:  params.get('repo')  || '',
-    token: params.get('token') || ''
-  };
-}
 
 async function init() {
   checkAuth();
   if (document.getElementById('passwordGate').style.display !== 'none') return;
-  const { owner, repo, token } = getConfig();
-  if (!owner || !repo) {
-    document.getElementById('setupBanner').classList.remove('hidden');
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    document.getElementById('dashWeekLabel').textContent = 'Not configured';
-    return;
-  }
-  await loadData(owner, repo, token);
+  await loadData();
   loadDashboard(null);
 }
 
-async function loadData(owner, repo, token) {
+async function loadData() {
   try {
-    const headers = token ? { 'Authorization': `token ${token}` } : {};
-    const res = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/data.json?t=` + Date.now(),
-      { headers }
-    );
-    if (!res.ok) throw new Error('Could not load data (status ' + res.status + ')');
-    const json = await res.json();
-    appData = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
+    const res = await fetch(FIREBASE_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data) appData = data;
   } catch(e) {
     document.getElementById('dashWeekLabel').textContent = 'Error loading data';
     document.getElementById('loadingOverlay').classList.add('hidden');
-    console.error(e);
   }
 }
 
