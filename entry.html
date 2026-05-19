@@ -318,22 +318,27 @@ async function init() {
 
 async function loadData() {
   showLoading(true);
+  // Load instantly from local cache
+  const cached = localStorage.getItem('wpu_data_cache');
+  if (cached) appData = JSON.parse(cached);
+  showLoading(false);
+  // Sync from GitHub in the background (non-blocking)
   try {
     const res = await fetch(
       `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/data.json?t=` + Date.now()
     );
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    appData = await res.json();
-    localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
-  } catch(e) {
-    const cached = localStorage.getItem('wpu_data_cache');
-    if (cached) {
-      appData = JSON.parse(cached);
-    } else {
-      showToast('Error loading data: ' + e.message, 'error');
+    if (res.ok) {
+      const remote = await res.json();
+      // Only update if remote has more data than local
+      if (remote.meetings.length >= appData.meetings.length) {
+        appData = remote;
+        localStorage.setItem('wpu_data_cache', JSON.stringify(appData));
+        populateLeads();
+      }
     }
+  } catch(e) {
+    // Silent fail — local data already loaded above
   }
-  showLoading(false);
 }
 
 async function saveData() {
