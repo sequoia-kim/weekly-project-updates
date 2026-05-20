@@ -771,12 +771,50 @@ function renderProjectList() {
   if (!appData.projects.length) { el.innerHTML = '<p class="text-muted">No projects yet.</p>'; return; }
   const sorted = [...appData.projects].sort((a,b) => a.lead.localeCompare(b.lead) || a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(p =>
-    `<div class="project-list-item">
+    `<div class="project-list-item" id="proj-row-${esc(p.id)}">
       <span>${esc(p.name)}</span><small>${esc(p.lead)}</small>
       ${p.stream ? `<span class="stream-badge stream-${p.stream.toLowerCase().replace(/\s+/g,'-')}">${esc(p.stream)}</span>` : ''}
+      <button class="btn btn-secondary btn-sm" onclick="startEditProject('${esc(p.id)}')">Edit</button>
       <button class="btn btn-danger btn-sm" onclick="removeProject('${esc(p.id)}')">Remove</button>
     </div>`
   ).join('');
+}
+
+function startEditProject(id) {
+  const p = appData.projects.find(x => x.id === id);
+  if (!p) return;
+  const row = document.getElementById('proj-row-' + id);
+  const streamOptions = ['Research','Policy','Public Engagement','Ongoing','Internal']
+    .map(s => `<option value="${s}"${p.stream===s?' selected':''}>${s}</option>`).join('');
+  row.innerHTML = `
+    <input type="text" id="ep-name-${esc(id)}" value="${esc(p.name)}" placeholder="Project name" style="flex:1.5;padding:6px 10px;border:1px solid rgba(255,255,255,.7);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.5);color:#0f2d5e">
+    <input type="text" id="ep-lead-${esc(id)}" value="${esc(p.lead)}" placeholder="Project lead" style="flex:1;padding:6px 10px;border:1px solid rgba(255,255,255,.7);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.5);color:#0f2d5e">
+    <select id="ep-stream-${esc(id)}" style="flex:1;padding:6px 10px;border:1px solid rgba(255,255,255,.7);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.5);color:#0f2d5e">
+      <option value="">— Stream —</option>${streamOptions}
+    </select>
+    <button class="btn btn-primary btn-sm" onclick="saveProjectEdit('${esc(id)}')">Save</button>
+    <button class="btn btn-secondary btn-sm" onclick="renderProjectList()">Cancel</button>`;
+}
+
+async function saveProjectEdit(id) {
+  const idx = appData.projects.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const name   = document.getElementById('ep-name-' + id).value.trim();
+  const lead   = document.getElementById('ep-lead-' + id).value.trim();
+  const stream = document.getElementById('ep-stream-' + id).value;
+  if (!name || !lead) { showToast('Name and lead are required.', 'error'); return; }
+  // also update any meetings that reference this project
+  const oldName = appData.projects[idx].name;
+  const oldLead = appData.projects[idx].lead;
+  Object.assign(appData.projects[idx], { name, lead, stream });
+  appData.meetings.forEach(m => {
+    if (m.projectId === id) { m.projectName = name; m.projectLead = lead; }
+  });
+  showLoading(true);
+  await saveData();
+  populateLeads();
+  renderProjectList();
+  showLoading(false);
 }
 
 async function addProject() {
