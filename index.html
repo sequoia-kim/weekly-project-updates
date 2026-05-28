@@ -161,12 +161,12 @@ select option{background:#d6e8ff;color:#0f2d5e}
 .cap-bar-fill{background:linear-gradient(90deg,#60a5fa,#3b82f6)!important}
 
 /* Password gate */
-#passwordGate{background:rgba(180,210,245,.75)!important;backdrop-filter:blur(20px)}
-#passwordGate>div{background:rgba(255,255,255,.5)!important;backdrop-filter:blur(28px) saturate(170%);border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 16px 48px rgba(100,150,255,.14),inset 0 1px 0 rgba(255,255,255,.95)!important}
-#passwordGate h2{color:#0f2d5e!important}
-#passwordGate p{color:#3b5ea6!important}
-#passwordGate input{background:rgba(255,255,255,.55)!important;border-color:rgba(255,255,255,.7)!important;color:#0f2d5e!important}
-#passwordGate button{background:linear-gradient(135deg,rgba(99,155,255,.9),rgba(59,130,246,.85))!important;box-shadow:0 4px 18px rgba(59,130,246,.3),inset 0 1px 0 rgba(255,255,255,.4)!important;border:1px solid rgba(255,255,255,.35)!important}
+#loginGate{background:rgba(180,210,245,.75)!important;backdrop-filter:blur(20px)}
+#loginGate>div{background:rgba(255,255,255,.5)!important;backdrop-filter:blur(28px) saturate(170%);border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 16px 48px rgba(100,150,255,.14),inset 0 1px 0 rgba(255,255,255,.95)!important}
+#loginGate h2{color:#0f2d5e!important}
+#loginGate p{color:#3b5ea6!important}
+#loginGate input{background:rgba(255,255,255,.55)!important;border-color:rgba(255,255,255,.7)!important;color:#0f2d5e!important}
+#loginGate button{background:linear-gradient(135deg,rgba(99,155,255,.9),rgba(59,130,246,.85))!important;box-shadow:0 4px 18px rgba(59,130,246,.3),inset 0 1px 0 rgba(255,255,255,.4)!important;border:1px solid rgba(255,255,255,.35)!important}
 
 /* QA accordion */
 .qa-item-header{background:rgba(255,255,255,.3)!important;color:#0f2d5e!important}
@@ -225,9 +225,9 @@ body.clean-mode .filter-btn.active,body.clean-mode .view-btn.active{background:#
 body.clean-mode .view-toggle{background:#f1f5f9!important;border-color:#e2e8f0!important;backdrop-filter:none!important}
 body.clean-mode .view-btn{background:transparent!important}
 body.clean-mode .form-group select,body.clean-mode .form-group input,body.clean-mode .form-group textarea,body.clean-mode .week-select,body.clean-mode .sort-select{background:#fff!important;border-color:#cbd5e1!important;backdrop-filter:none!important}
-body.clean-mode #passwordGate{background:#eef4ff!important;backdrop-filter:none!important}
-body.clean-mode #passwordGate>div{background:#fff!important;backdrop-filter:none!important;border-color:#e2e8f0!important;box-shadow:0 4px 24px rgba(0,0,0,.08)!important}
-body.clean-mode #passwordGate button{background:#3b82f6!important;box-shadow:none!important;border:none!important}
+body.clean-mode #loginGate{background:#eef4ff!important;backdrop-filter:none!important}
+body.clean-mode #loginGate>div{background:#fff!important;backdrop-filter:none!important;border-color:#e2e8f0!important;box-shadow:0 4px 24px rgba(0,0,0,.08)!important}
+body.clean-mode #loginGate button{background:#3b82f6!important;box-shadow:none!important;border:none!important}
 body.clean-mode .qa-item-header{background:#f8fafc!important;backdrop-filter:none!important}
 body.clean-mode .qa-item-header:hover{background:#f1f5f9!important}
 body.clean-mode .slideover{background:#fff!important;backdrop-filter:none!important}
@@ -263,14 +263,15 @@ body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
 <div id="gradBg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 <div id="grain"></div>
 
-<div id="passwordGate" style="position:fixed;inset:0;background:#fffbf5;display:flex;align-items:center;justify-content:center;z-index:1000">
+<div id="loginGate" style="position:fixed;inset:0;background:#fffbf5;display:flex;align-items:center;justify-content:center;z-index:1000">
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:40px;max-width:360px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)">
-    <div style="font-size:28px;margin-bottom:12px">📊</div>
+    <div style="font-size:28px;margin-bottom:12px">🔐</div>
     <h2 style="font-size:18px;font-weight:700;margin-bottom:6px">Project Dashboard</h2>
-    <p style="font-size:14px;color:#64748b;margin-bottom:24px">Enter the team password to continue.</p>
-    <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:12px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')checkPassword()">
-    <button onclick="checkPassword()" style="width:100%;padding:11px;background:#f97316;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Enter</button>
-    <div id="pwError" style="color:#ef4444;font-size:13px;margin-top:10px;display:none">Incorrect password. Try again.</div>
+    <p style="font-size:14px;color:#64748b;margin-bottom:24px">Sign in to continue</p>
+    <input type="email" id="emailInput" placeholder="Email" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()">
+    <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:12px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')signIn()">
+    <button id="signInBtn" onclick="signIn()" style="width:100%;padding:11px;background:#f97316;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Sign in</button>
+    <div id="loginError" style="color:#ef4444;font-size:13px;margin-top:10px;display:none"></div>
   </div>
 </div>
 <div id="loadingOverlay" class="loading-overlay hidden"><div class="spinner"></div></div>
@@ -348,44 +349,72 @@ body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
 </div>
 
 <script>
-const SITE_PASSWORD = '__SITE_PASSWORD__';
 const FIREBASE_API_KEY = '__FIREBASE_API_KEY__';
-const AUTH_KEY = 'wpu_auth';
 let _authToken = null;
 
 async function getAuthToken() {
   if (_authToken) return _authToken;
+  const token = localStorage.getItem('wpu_id_token');
+  const expiry = parseInt(localStorage.getItem('wpu_token_expiry') || '0');
+  if (token && Date.now() < expiry - 60000) { _authToken = token; return token; }
+  const refresh = localStorage.getItem('wpu_refresh_token');
+  if (refresh) {
+    try {
+      const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FIREBASE_API_KEY}`,
+        { method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({grant_type:'refresh_token',refresh_token:refresh}) });
+      const d = await res.json();
+      if (d.id_token) {
+        _authToken = d.id_token;
+        localStorage.setItem('wpu_id_token', d.id_token);
+        localStorage.setItem('wpu_refresh_token', d.refresh_token);
+        localStorage.setItem('wpu_token_expiry', String(Date.now() + parseInt(d.expires_in)*1000));
+        return _authToken;
+      }
+    } catch(e) {}
+  }
+  document.getElementById('loginGate').style.display = 'flex';
+  return null;
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+async function signIn() {
+  const email = document.getElementById('emailInput').value.trim();
+  const pass  = document.getElementById('passwordInput').value;
+  const err   = document.getElementById('loginError');
+  err.style.display = 'none';
+  if (!email || !pass) { err.textContent='Enter your email and password.'; err.style.display='block'; return; }
+  const btn = document.getElementById('signInBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    const res = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ returnSecureToken: true }) }
-    );
+    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+      { method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email, password:pass, returnSecureToken:true}) });
     const d = await res.json();
-    _authToken = d.idToken || null;
-  } catch(e) { _authToken = null; }
-  return _authToken;
-}
-
-function checkAuth() {
-  if (localStorage.getItem(AUTH_KEY) === SITE_PASSWORD) {
-    document.getElementById('passwordGate').style.display = 'none';
-    document.getElementById('loadingOverlay').classList.remove('hidden');
+    if (d.idToken) {
+      _authToken = d.idToken;
+      localStorage.setItem('wpu_id_token', d.idToken);
+      localStorage.setItem('wpu_refresh_token', d.refreshToken);
+      localStorage.setItem('wpu_token_expiry', String(Date.now() + parseInt(d.expiresIn)*1000));
+      document.getElementById('loginGate').style.display = 'none';
+      init();
+    } else {
+      const code = d.error?.message || '';
+      err.textContent = (code.includes('INVALID') || code.includes('NOT_FOUND')) ? 'Invalid email or password.' : 'Sign-in failed. Try again.';
+      err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Sign in';
+    }
+  } catch(e) {
+    err.textContent = 'Network error. Try again.';
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Sign in';
   }
 }
 
-function checkPassword() {
-  const input = document.getElementById('passwordInput').value;
-  if (input === SITE_PASSWORD) {
-    localStorage.setItem(AUTH_KEY, SITE_PASSWORD);
-    document.getElementById('passwordGate').style.display = 'none';
-    document.getElementById('loadingOverlay').classList.remove('hidden');
-    init();
-  } else {
-    document.getElementById('pwError').style.display = 'block';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
-  }
+function signOut() {
+  _authToken = null;
+  ['wpu_id_token','wpu_refresh_token','wpu_token_expiry','wpu_cache'].forEach(k => localStorage.removeItem(k));
+  document.getElementById('loginGate').style.display = 'flex';
+  document.getElementById('emailInput').value = '';
+  document.getElementById('passwordInput').value = '';
 }
 
 const FIREBASE_URL = '__FIREBASE_URL__';
@@ -393,8 +422,9 @@ let appData = { projects: [], meetings: [] };
 let activeStream = '';
 
 async function init() {
-  checkAuth();
-  if (document.getElementById('passwordGate').style.display !== 'none') return;
+  const token = await getAuthToken();
+  if (!token) return;
+  document.getElementById('loginGate').style.display = 'none';
   await loadData();
   loadDashboard(null);
 }
@@ -703,7 +733,7 @@ init();
 (function(){
   var paused=false;
   document.addEventListener('click',function(e){
-    if(e.target.closest('button')||e.target.closest('a')||e.target.closest('select')||e.target.closest('input')||e.target.closest('#passwordGate')||e.target.closest('.modal')||e.target.closest('.slideover')) return;
+    if(e.target.closest('button')||e.target.closest('a')||e.target.closest('select')||e.target.closest('input')||e.target.closest('#loginGate')||e.target.closest('.modal')||e.target.closest('.slideover')) return;
     paused=!paused;
     document.querySelectorAll('.blob').forEach(function(el){
       el.style.animationPlayState=paused?'paused':'running';
