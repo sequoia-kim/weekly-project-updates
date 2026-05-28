@@ -389,9 +389,8 @@ function signOut() {
 async function loadData() {
   try {
     const token = await getAuthToken();
-    const url = FIREBASE_URL + '?t=' + Date.now();
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-    const res = await fetch(url, { headers });
+    const url = FIREBASE_URL + '?t=' + Date.now() + (token ? '&auth=' + token : '');
+    const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     projects = (data && data.projects) ? data.projects : [];

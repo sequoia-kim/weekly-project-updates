@@ -573,9 +573,8 @@ async function loadData() {
   showLoading(true);
   try {
     const token = await getAuthToken();
-    const url = FIREBASE_URL + '?t=' + Date.now();
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-    const res = await fetch(url, { headers });
+    const url = FIREBASE_URL + '?t=' + Date.now() + (token ? '&auth=' + token : '');
+    const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data) {
@@ -593,11 +592,10 @@ async function saveData() {
   localStorage.setItem('wpu_cache', JSON.stringify(appData));
   try {
     const token = await getAuthToken();
-    const url = FIREBASE_URL;
-    const authHeader = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const url = FIREBASE_URL + (token ? '?auth=' + token : '');
     const res = await fetch(url, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...authHeader },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(appData)
     });
     if (res.ok) {
