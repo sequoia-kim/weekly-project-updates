@@ -6,9 +6,8 @@ An internal tool for tracking weekly project status across a small research cent
 
 | Page | URL | Access |
 |------|-----|--------|
-| **Entry** | [entry.html](https://sequoia-kim.github.io/weekly-project-updates/entry.html) | Submit weekly check-ins, manage projects |
-| **Dashboard** | [index.html](https://sequoia-kim.github.io/weekly-project-updates/index.html) | View responses, flags, and weekly summaries |
-| **Team view** | [team.html](https://sequoia-kim.github.io/weekly-project-updates/team.html) | Read-only project status and calendar |
+| **Detailed dashboard** | [index.html](https://sequoia-kim.github.io/weekly-project-updates/index.html) | View responses, flags, and weekly summaries - for Operations, Management and Admin |
+| **Team view** | [team.html](https://sequoia-kim.github.io/weekly-project-updates/team.html) | Read-only project status and calendar for all team members|
 
 ## Stack
 
