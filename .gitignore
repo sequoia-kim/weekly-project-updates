@@ -1,1 +1,12 @@
+# Data files
 data.json
+
+# Environment / secrets
+.env
+.env.*
+*.local
+secrets/
+secrets.*
+*.key
+*.pem
+config.local.*

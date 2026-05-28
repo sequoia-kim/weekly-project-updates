@@ -250,8 +250,8 @@ body.clean-mode #themeToggleBtn:hover{background:#f1f5f9}
     <div style="font-size:28px;margin-bottom:12px">🔐</div>
     <h2 style="font-size:18px;font-weight:700;margin-bottom:6px">Project Status</h2>
     <p style="font-size:14px;color:#64748b;margin-bottom:24px">Sign in to continue</p>
-    <input type="email" id="emailInput" placeholder="Email" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()">
-    <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:12px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')signIn()">
+    <input type="email" id="emailInput" placeholder="Email" autocomplete="email" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()">
+    <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;margin-bottom:12px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')signIn()">
     <button id="signInBtn" onclick="signIn()" style="width:100%;padding:11px;background:#f97316;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Sign in</button>
     <div id="loginError" style="color:#ef4444;font-size:13px;margin-top:10px;display:none"></div>
   </div>
@@ -389,8 +389,9 @@ function signOut() {
 async function loadData() {
   try {
     const token = await getAuthToken();
-    const url = FIREBASE_URL + '?t=' + Date.now() + (token ? '&auth=' + token : '');
-    const res = await fetch(url);
+    const url = FIREBASE_URL + '?t=' + Date.now();
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const res = await fetch(url, { headers });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     projects = (data && data.projects) ? data.projects : [];
